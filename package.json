@@ -1,0 +1,25 @@
+{
+  "name": "keepass.js",
+  "version": "0.0.1",
+  "description": "The popular KeePass password manager as a web application",
+  "author": "Timo Ulich",
+  "homepage": "https://github.com/ulich/keepass.js",
+  "license": "GPL2",
+  "scripts": {
+    "test": "karma start karma-config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ulich/keepass.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ulich/keepass.js/issues"
+  },
+  "devDependencies": {
+    "bower": "^1.4.1",
+    "jasmine-core": "^2.3.4",
+    "karma": "^0.12.37",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-jasmine": "^0.3.5"
+  }
+}
