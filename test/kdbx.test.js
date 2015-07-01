@@ -2,18 +2,20 @@ describe("kdbx", function () {
     it("should decrypt properly", function (done) {
         var result;
 
-        loadFile('base/test/data/000_example.kdbx.dat', function (response) {
-            var credentials = [readPassword("test")];
-            var dataView = new jDataView(response, 0, response.byteLength, true);
+        loadFile('base/test/data/000_example.kdbx.dat', function (fileContents) {
+            var keepass = new Keepass(new KeepassHeader());
 
-            result = readKeePassFile(dataView, credentials);
-            
-            expect(result.length).toBe(1);
-            expect(result[0].Title).toBe("test_entry");
-            expect(result[0].Password).toBe("test_password");
-            expect(result[0].UserName).toBe("test_username");
+            keepass.getPasswords(fileContents, "test")
+                .then(function (entries) {
+                    expect(entries.length).toBe(1);
 
-            done();
+                    var entry = entries[0];
+                    expect(entry.title).toBe("test_entry");
+                    expect(entry.userName).toBe("test_username");
+                    expect(keepass.getDecryptedEntry(entry.protectedData.password, keepass.streamKey)).toBe("test_password");
+
+                    done();
+                });
         });
     });
 

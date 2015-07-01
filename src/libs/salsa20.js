@@ -1,5 +1,3 @@
-// copied from https://gist.github.com/dchest/4582374
-
 var Salsa20 = (function () {
 
     function Salsa20(key, nonce) {
@@ -58,6 +56,18 @@ var Salsa20 = (function () {
         }
         return out;
     };
+
+    Salsa20.prototype.decrypt = function(inBytes) {
+      var outBytes = new Array(inBytes.length);
+      var keyBytes = this.getBytes(inBytes.length);
+      for(var i=0; i<inBytes.length; i++) {
+        outBytes[i] = keyBytes[i] ^ inBytes[i];
+      }
+
+      return outBytes;
+    };
+
+    Salsa20.prototype.encrypt = Salsa20.prototype.decrypt;  //yep, its the same both ways due to the xor operation
 
     Salsa20.prototype.getHexString = function(numberOfBytes) {
         var hex=['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
@@ -240,3 +250,4 @@ var Salsa20 = (function () {
 
     return Salsa20;
 })();
+
