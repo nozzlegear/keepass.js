@@ -15,7 +15,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'src/**/*.js',
+      'build/**/*.js',
+      'libs/**/*.js',
       'test/**/*.test.js',
       'bower_components/cryptojslib/components/core.js',
       'bower_components/cryptojslib/components/cipher-core.js',

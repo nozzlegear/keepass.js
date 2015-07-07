@@ -1,0 +1,6 @@
+{
+   "compilerOptions": {
+        "out": "../build/keepass.js",
+        "target": "ES5"
+    }
+}

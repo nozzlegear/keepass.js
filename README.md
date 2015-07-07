@@ -9,11 +9,28 @@ Compared to <a href="https://github.com/NeoXiD/" target="_blank">keepass.io</a>,
 
 The keepass decryption algorithm is based on: https://github.com/perfectapi/CKP
 
+## Building
+
+You must have the following tools installed:
+
+- node.js
+- bower (npm install -g bower)
+- tsd (npm install -g tsd)
+- gulp-cli (npm install -g gulp-cli)
+
+Now run
+```
+npm install
+bower install
+tsd install
+gulp
+```
+
+For development, run `gulp watch` instead of `gulp` to automatically rebuild when changing the source code.
+
 
 ## Running the tests
 
 ```
-npm install
-bower install
 npm test
 ```

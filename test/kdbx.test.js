@@ -3,7 +3,7 @@ describe("kdbx", function () {
         var result;
 
         loadFile('base/test/data/000_example.kdbx.dat', function (fileContents) {
-            var keepass = new Keepass(new KeepassHeader());
+            var keepass = new Keepass.Database();
 
             keepass.getPasswords(fileContents, "test")
                 .then(function (entries) {
