@@ -4,12 +4,13 @@ var ts = require('gulp-typescript');
 gulp.task('compile-ts', function () {
 
     var tsProject = ts.createProject('src/tsconfig.json', {
-        typescript: require('typescript')    
+        typescript: require('typescript')
     });
     
     var tsResult = tsProject.src()
         .pipe(ts(tsProject));
 
+    tsResult.dts.pipe(gulp.dest('build'));
     return tsResult.js.pipe(gulp.dest('build'));
 });
 
