@@ -1,3 +1,5 @@
+/// <reference path="../typings/tsd.d.ts" />
+
 describe("kdbx", function () {
     it("should decrypt a kdbx file properly", function (done) {
         loadFile('base/test/data/000_example.kdbx.dat', function (fileContents) {
