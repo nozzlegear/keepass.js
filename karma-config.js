@@ -28,7 +28,7 @@ module.exports = function(config) {
       // note, that karma ships with a whitelist of file extensions that are treated as binary files.
       // .kdbx is not one of them, therefore the file must have one of the extensions that are whitelisted
       // (.dat being one of them). See https://github.com/karma-runner/karma/issues/1070
-      { pattern: 'test/**/*.kdbx.dat', watched: true, included: false, served: true }
+      { pattern: 'test/**/*.dat', watched: true, included: false, served: true }
     ],
 
 
