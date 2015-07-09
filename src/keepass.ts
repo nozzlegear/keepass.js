@@ -7,12 +7,6 @@ module Keepass {
         private headerParser = new HeaderParser();
         public streamKey;
 
-        private littleEndian = (function() {
-            var buffer = new ArrayBuffer(2);
-            new DataView(buffer).setInt16(0, 256, true);
-            return new Int16Array(buffer)[0] === 256;
-        })();
-
         private getKey(h, masterPassword, fileKey) {
             var partPromises = [];
             var SHA = {
@@ -102,8 +96,8 @@ module Keepass {
                     var blockArray = [], totalDataLength = 0;
                     while (!done) {
                         var blockHeader = new DataView(decryptedData, pos, 40);
-                        var blockId = blockHeader.getUint32(0, this.littleEndian);
-                        var blockSize = blockHeader.getUint32(36, this.littleEndian);
+                        var blockId = blockHeader.getUint32(0, Util.littleEndian);
+                        var blockSize = blockHeader.getUint32(36, Util.littleEndian);
                         var blockHash = new Uint8Array(decryptedData, pos + 4, 32);
 
                         if (blockSize > 0) {
@@ -130,207 +124,29 @@ module Keepass {
                     }
                     var decoder = new TextDecoder();
                     var xml = decoder.decode(allBlocks);
-                    var entries = this.parseXml(xml, h.protectedStreamKey);
-                    return entries;
+                    
+                    return this.decryptStreamKey(h.protectedStreamKey).then((streamKey) => {
+                        var entries = this.parseXml(xml);
+                        return entries; 
+                    });
 
                 } else {
-                    //kdb
-                    var entries = this.parseKdb(decryptedData, h);
-                    return entries;
+                    return this.decryptStreamKey(h.protectedStreamKey).then((streamKey) => {
+                        //kdb
+                        var entries = new KdbParser().parse(decryptedData, streamKey, h);
+                        return entries;
+                    });
                 }
             });
         }
-
-        private parseKdb(buf, h) {
+        
+        private decryptStreamKey(protectedStreamKey) {
             return window.crypto.subtle.digest({
                 name: "SHA-256"
-            }, h.protectedStreamKey).then((streamKey) => {
+            }, protectedStreamKey).then((streamKey) => {
                 this.streamKey = streamKey;
-                var iv = [0xE8, 0x30, 0x09, 0x4B, 0x97, 0x20, 0x5D, 0x2A];
-                var salsa = new Salsa20(new Uint8Array(this.streamKey), iv);
-                var salsaPosition = 0;
-
-                var pos = 0;
-                var dv = new DataView(buf);
-                var groups = [];
-                for (var i = 0; i < h.numberOfGroups; i++) {
-                    var fieldType = 0, fieldSize = 0;
-                    var currentGroup = {};
-                    var preventInfinite = 100;
-                    while (fieldType != 0xFFFF && preventInfinite > 0) {
-                        fieldType = dv.getUint16(pos, this.littleEndian);
-                        fieldSize = dv.getUint32(pos + 2, this.littleEndian);
-                        pos += 6;
-
-                        this.readGroupField(fieldType, fieldSize, buf, pos, currentGroup);
-                        pos += fieldSize;
-                        preventInfinite -= 1;
-                    }
-
-                    groups.push(currentGroup);
-                }
-
-                var entries = [];
-                for (var i = 0; i < h.numberOfEntries; i++) {
-                    var fieldType = 0, fieldSize = 0;
-                    var currentEntry: any = { keys: [] };
-                    var preventInfinite = 100;
-                    while (fieldType != 0xFFFF && preventInfinite > 0) {
-                        fieldType = dv.getUint16(pos, this.littleEndian);
-                        fieldSize = dv.getUint32(pos + 2, this.littleEndian);
-                        pos += 6;
-
-                        this.readEntryField(fieldType, fieldSize, buf, pos, currentEntry);
-                        pos += fieldSize;
-                        preventInfinite -= 1;
-                    }
-
-                    //if (Case.constant(currentEntry.title) != "META_INFO") {
-                    //meta-info items are not actual password entries
-                    currentEntry.group = groups.filter(function(grp) {
-                        return grp.id == currentEntry.groupId;
-                    })[0];
-                    currentEntry.groupName = currentEntry.group.name;
-
-                    //in-memory-protect the password in the same way as on KDBX
-                    if (currentEntry.password) {
-                        var encoder = new TextEncoder();
-                        var passwordBytes = encoder.encode(currentEntry.password);
-                        var encPassword = salsa.encrypt(new Uint8Array(passwordBytes));
-                        currentEntry.protectedData = {
-                            password: {
-                                data: encPassword,
-                                position: salsaPosition
-                            }
-                        };
-                        currentEntry.password = Base64.encode(encPassword);  //not used - just for consistency with KDBX
-
-                        salsaPosition += passwordBytes.byteLength;
-                    }
-
-                    if (!(currentEntry.title == 'Meta-Info' && currentEntry.userName == 'SYSTEM')
-                        && (currentEntry.groupName != 'Backup')
-                        && (currentEntry.groupName != 'Search Results'))
-
-                        entries.push(currentEntry);
-                    //}
-                }
-
-                return entries;
+                return streamKey; 
             });
-        }
-
-        //read KDB entry field
-        private readEntryField(fieldType, fieldSize, buf, pos, entry) {
-            var dv = new DataView(buf, pos, fieldSize);
-            var arr = new Uint8Array(0);
-            if (fieldSize > 0) {
-                arr = new Uint8Array(buf, pos, fieldSize - 1);
-            }
-            var decoder = new TextDecoder();
-
-            switch (fieldType) {
-                case 0x0000:
-                    // Ignore field
-                    break;
-                case 0x0001:
-                    entry.id = this.convertArrayToUUID(new Uint8Array(buf, pos, fieldSize));
-                    break;
-                case 0x0002:
-                    entry.groupId = dv.getUint32(0, this.littleEndian);
-                    break;
-                case 0x0003:
-                    entry.iconId = dv.getUint32(0, this.littleEndian);
-                    break;
-                case 0x0004:
-                    entry.title = decoder.decode(arr);
-                    entry.keys.push('title');
-                    break;
-                case 0x0005:
-                    entry.url = decoder.decode(arr);
-                    entry.keys.push('url');
-                    break;
-                case 0x0006:
-                    entry.userName = decoder.decode(arr);
-                    entry.keys.push('userName');
-                    break;
-                case 0x0007:
-                    entry.password = decoder.decode(arr);
-                    break;
-                case 0x0008:
-                    entry.notes = decoder.decode(arr);
-                    entry.keys.push('notes');
-                    break;
-                /*
-                      case 0x0009:
-                        ent.tCreation = new PwDate(buf, offset);
-                        break;
-                      case 0x000A:
-                        ent.tLastMod = new PwDate(buf, offset);
-                        break;
-                      case 0x000B:
-                        ent.tLastAccess = new PwDate(buf, offset);
-                        break;
-                      case 0x000C:
-                        ent.tExpire = new PwDate(buf, offset);
-                        break;
-                      case 0x000D:
-                        ent.binaryDesc = Types.readCString(buf, offset);
-                        break;
-                      case 0x000E:
-                        ent.setBinaryData(buf, offset, fieldSize);
-                        break;
-                */
-            }
-        }
-
-        private readGroupField(fieldType, fieldSize, buf, pos, group) {
-            var dv = new DataView(buf, pos, fieldSize);
-            var arr = new Uint8Array(0);
-            if (fieldSize > 0) {
-                arr = new Uint8Array(buf, pos, fieldSize - 1);
-            }
-
-            switch (fieldType) {
-                case 0x0000:
-                    // Ignore field
-                    break;
-                case 0x0001:
-                    group.id = dv.getUint32(0, this.littleEndian);
-                    break;
-                case 0x0002:
-                    var decoder = new TextDecoder();
-                    group.name = decoder.decode(arr);
-                    break;
-                /*
-                case 0x0009:
-                  group.flags = dv.getUint32(0, this.littleEndian);
-                  break; 
-                */
-                /*
-                case 0x0003:
-                  group.tCreation = new PwDate(buf, offset);
-                  break;
-                case 0x0004:
-                  group.tLastMod = new PwDate(buf, offset);
-                  break;
-                case 0x0005:
-                  group.tLastAccess = new PwDate(buf, offset);
-                  break;
-                case 0x0006:
-                  group.tExpire = new PwDate(buf, offset);
-                  break;
-                case 0x0007:
-                  group.icon = db.iconFactory.getIcon(LEDataInputStream.readInt(buf, offset));
-                  break;
-                case 0x0008:
-                  group.level = LEDataInputStream.readUShort(buf, offset);
-                  break;
-                case 0x0009:
-                  group.flags = LEDataInputStream.readInt(buf, offset);
-                  break;
-                */
-            }
         }
 
         /**
@@ -351,77 +167,72 @@ module Keepass {
         /**
          * Parses the KDBX entries xml into an object format
          **/
-        private parseXml(xml, protectedStreamKey) {
-            return window.crypto.subtle.digest({
-                name: "SHA-256"
-            }, protectedStreamKey).then((streamKey) => {
-                this.streamKey = streamKey;
-                var decoder = new TextDecoder();
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(xml, "text/xml");
-                //console.log(doc);
+        private parseXml(xml) {
+            var decoder = new TextDecoder();
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(xml, "text/xml");
+            //console.log(doc);
 
-                var results = [];
-                var entryNodes = doc.evaluate('//Entry', doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                var protectedPosition = 0;
-                for (var i = 0; i < entryNodes.snapshotLength; i++) {
-                    var entryNode: any = entryNodes.snapshotItem(i);
-                    //console.log(entryNode);
-                    var entry: any = {
-                        protectedData: {},
-                        keys: []
-                    };
+            var results = [];
+            var entryNodes = doc.evaluate('//Entry', doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+            var protectedPosition = 0;
+            for (var i = 0; i < entryNodes.snapshotLength; i++) {
+                var entryNode: any = entryNodes.snapshotItem(i);
+                //console.log(entryNode);
+                var entry: any = {
+                    protectedData: {},
+                    keys: []
+                };
 
-                    //exclude histories and recycle bin:
-                    if (entryNode.parentNode.nodeName != "History") {
-                        for (var m = 0; m < entryNode.parentNode.children.length; m++) {
-                            var groupNode = entryNode.parentNode.children[m];
-                            if (groupNode.nodeName == 'Name')
-                                entry.groupName = groupNode.textContent;
-                        }
-
-                        if (entry.groupName != "Recycle Bin")
-                            results.push(entry);
+                //exclude histories and recycle bin:
+                if (entryNode.parentNode.nodeName != "History") {
+                    for (var m = 0; m < entryNode.parentNode.children.length; m++) {
+                        var groupNode = entryNode.parentNode.children[m];
+                        if (groupNode.nodeName == 'Name')
+                            entry.groupName = groupNode.textContent;
                     }
-                    for (var j = 0; j < entryNode.children.length; j++) {
-                        var childNode = entryNode.children[j];
 
-                        if (childNode.nodeName == "UUID") {
-                            entry.id = this.convertArrayToUUID(Base64.decode(childNode.textContent));
-                        } else if (childNode.nodeName == "IconID") {
-                            entry.iconId = Number(childNode.textContent);  //integer
-                        } else if (childNode.nodeName == "Tags" && childNode.textContent) {
-                            entry.tags = childNode.textContent;
-                            entry.keys.push('tags');
-                        } else if (childNode.nodeName == "Binary") {
-                            entry.binaryFiles = childNode.textContent;
-                            entry.keys.push('binaryFiles');  //the actual files are stored elsewhere in the xml, not sure where
-                        } else if (childNode.nodeName == "String") {
-                            var key = childNode.getElementsByTagName('Key')[0].textContent;
-                            key = Case.camel(key);
-                            var valNode = childNode.getElementsByTagName('Value')[0];
-                            var val = valNode.textContent;
-                            var protectedVal = valNode.hasAttribute('Protected');
+                    if (entry.groupName != "Recycle Bin")
+                        results.push(entry);
+                }
+                for (var j = 0; j < entryNode.children.length; j++) {
+                    var childNode = entryNode.children[j];
 
-                            if (protectedVal) {
-                                var encBytes = new Uint8Array(Base64.decode(val));
-                                entry.protectedData[key] = {
-                                    position: protectedPosition,
-                                    data: encBytes
-                                };
+                    if (childNode.nodeName == "UUID") {
+                        entry.id = Util.convertArrayToUUID(Base64.decode(childNode.textContent));
+                    } else if (childNode.nodeName == "IconID") {
+                        entry.iconId = Number(childNode.textContent);  //integer
+                    } else if (childNode.nodeName == "Tags" && childNode.textContent) {
+                        entry.tags = childNode.textContent;
+                        entry.keys.push('tags');
+                    } else if (childNode.nodeName == "Binary") {
+                        entry.binaryFiles = childNode.textContent;
+                        entry.keys.push('binaryFiles');  //the actual files are stored elsewhere in the xml, not sure where
+                    } else if (childNode.nodeName == "String") {
+                        var key = childNode.getElementsByTagName('Key')[0].textContent;
+                        key = Case.camel(key);
+                        var valNode = childNode.getElementsByTagName('Value')[0];
+                        var val = valNode.textContent;
+                        var protectedVal = valNode.hasAttribute('Protected');
 
-                                protectedPosition += encBytes.length;
-                            } else {
-                                entry.keys.push(key);
-                            }
-                            entry[key] = val;
+                        if (protectedVal) {
+                            var encBytes = new Uint8Array(Base64.decode(val));
+                            entry.protectedData[key] = {
+                                position: protectedPosition,
+                                data: encBytes
+                            };
+
+                            protectedPosition += encBytes.length;
+                        } else {
+                            entry.keys.push(key);
                         }
+                        entry[key] = val;
                     }
                 }
+            }
 
-                //console.log(results);
-                return results;
-            });
+            //console.log(results);
+            return results;
         }
 
         private aes_ecb_encrypt(rawKey, data, rounds) {
@@ -474,15 +285,6 @@ module Keepass {
             }).then(function(result) {
                 return new Uint8Array(result, (rounds - 1) * 16, 16);
             });
-        }
-
-        private convertArrayToUUID(arr) {
-            var int8Arr = new Uint8Array(arr);
-            var result = new Array(int8Arr.byteLength * 2);
-            for (var i = 0; i < int8Arr.byteLength; i++) {
-                result[i * 2] = int8Arr[i].toString(16).toUpperCase();
-            }
-            return result.join("");
         }
     }
 }

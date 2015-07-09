@@ -4,17 +4,12 @@ module Keepass {
     export class HeaderParser {
         
         private AES_CIPHER_UUID = new Uint8Array([0x31, 0xc1, 0xf2, 0xe6, 0xbf, 0x71, 0x43, 0x50, 0xbe, 0x58, 0x05, 0x21, 0x6a, 0xfc, 0x5a, 0xff]);
-        private littleEndian = (function() {
-            var buffer = new ArrayBuffer(2);
-            new DataView(buffer).setInt16(0, 256, true);
-            return new Int16Array(buffer)[0] === 256;
-        })();
         
         readHeader(buf): any {
             var sigHeader = new DataView(buf, 0, 8)
             var h = {
-                sigKeePass: sigHeader.getUint32(0, this.littleEndian),
-                sigKeePassType: sigHeader.getUint32(4, this.littleEndian)
+                sigKeePass: sigHeader.getUint32(0, Keepass.Util.littleEndian),
+                sigKeePassType: sigHeader.getUint32(4, Util.littleEndian)
             };
     
             var DBSIG_KEEPASS = 0x9AA2D903;
@@ -47,22 +42,22 @@ module Keepass {
             var FLAG_TWOFISH = 8;
     
             var dv = new DataView(buf, position, 116);
-            var flags = dv.getUint32(0, this.littleEndian);
+            var flags = dv.getUint32(0, Util.littleEndian);
             if ((flags & FLAG_RIJNDAEL) != FLAG_RIJNDAEL) {
                 throw new Error('We only support AES (aka Rijndael) encryption on KeePass KDB files.  This file is using something else.');
             }
     
             try {
                 h.cipher = this.AES_CIPHER_UUID;
-                h.majorVersion = dv.getUint16(4, this.littleEndian);
-                h.minorVersion = dv.getUint16(6, this.littleEndian);
+                h.majorVersion = dv.getUint16(4, Util.littleEndian);
+                h.minorVersion = dv.getUint16(6, Util.littleEndian);
                 h.masterSeed = new Uint8Array(buf, position + 8, 16);
                 h.iv = new Uint8Array(buf, position + 24, 16);
-                h.numberOfGroups = dv.getUint32(40, this.littleEndian);
-                h.numberOfEntries = dv.getUint32(44, this.littleEndian);
+                h.numberOfGroups = dv.getUint32(40, Util.littleEndian);
+                h.numberOfEntries = dv.getUint32(44, Util.littleEndian);
                 h.contentsHash = new Uint8Array(buf, position + 48, 32);
                 h.transformSeed = new Uint8Array(buf, position + 80, 32);
-                h.keyRounds = dv.getUint32(112, this.littleEndian);
+                h.keyRounds = dv.getUint32(112, Util.littleEndian);
         
                 //constants for KDB:
                 h.keyRounds2 = 0;
@@ -81,15 +76,15 @@ module Keepass {
         private readKdbxHeader(buf, position, h) {
             try {
                 var version = new DataView(buf, position, 4)
-                h.majorVersion = version.getUint16(0, this.littleEndian);
-                h.minorVersion = version.getUint16(2, this.littleEndian);
+                h.majorVersion = version.getUint16(0, Util.littleEndian);
+                h.minorVersion = version.getUint16(2, Util.littleEndian);
                 position += 4;
     
                 var done = false;
                 while (!done) {
                     var descriptor = new DataView(buf, position, 3);
                     var fieldId = descriptor.getUint8(0);
-                    var len = descriptor.getUint16(1, this.littleEndian);
+                    var len = descriptor.getUint16(1, Util.littleEndian);
     
                     var dv = new DataView(buf, position + 3, len);
                     //console.log("fieldid " + fieldId + " found at " + position);
@@ -102,7 +97,7 @@ module Keepass {
                             h.cipher = new Uint8Array(buf, position, len);
                             break;
                         case 3: //compression flags, 4 bytes
-                            h.compressionFlags = dv.getUint32(0, this.littleEndian);
+                            h.compressionFlags = dv.getUint32(0, Util.littleEndian);
                             break;
                         case 4: //master seed
                             h.masterSeed = new Uint8Array(buf, position, len);
@@ -111,8 +106,8 @@ module Keepass {
                             h.transformSeed = new Uint8Array(buf, position, len);
                             break;
                         case 6: //transform rounds, 8 bytes
-                            h.keyRounds = dv.getUint32(0, this.littleEndian);
-                            h.keyRounds2 = dv.getUint32(4, this.littleEndian);
+                            h.keyRounds = dv.getUint32(0, Util.littleEndian);
+                            h.keyRounds2 = dv.getUint32(4, Util.littleEndian);
                             break;
                         case 7: //iv
                             h.iv = new Uint8Array(buf, position, len);
@@ -124,7 +119,7 @@ module Keepass {
                             h.streamStartBytes = new Uint8Array(buf, position, len);
                             break;
                         case 10:
-                            h.innerRandomStreamId = dv.getUint32(0, this.littleEndian);
+                            h.innerRandomStreamId = dv.getUint32(0, Util.littleEndian);
                             break;
                         default:
                             break;
