@@ -4,10 +4,11 @@ before_install:
   - npm install -g bower
   - npm install -g tsd
   - npm install -g gulp-cli
-  - bower install
-  - gulp
 
 before_script:
+  - bower install
+  - tsd install
+  - gulp
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
 
