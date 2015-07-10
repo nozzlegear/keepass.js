@@ -87,6 +87,10 @@ module.exports = function(config) {
   if (process.env.TRAVIS) {
     configuration.browsers = ['Chrome_travis_ci'];
     configuration.singleRun = true;
+    
+    // Disable testing with Chrome in Travis for now because Travis ships with
+    // Chrome 37, but we are using APIs that exist in newer versions of Chrome 
+    configuration.browsers = ['Firefox'];
   }
 
   config.set(configuration);
