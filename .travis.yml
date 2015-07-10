@@ -1,0 +1,7 @@
+language: node_js
+before_script:
+  - npm install -g bower
+  - npm install -g tsd
+  - npm install -g gulp-cli
+  - bower install
+  - gulp build
