@@ -1,5 +1,6 @@
-keepass.js
-==========
+# keepass.js
+
+[![Build Status](https://travis-ci.org/ulich/keepass.js.svg?branch=master)](https://travis-ci.org/ulich/keepass.js)
 
 A JavaScript library for reading <a href="http://keepass.info/" target="_blank">KeePass</a> databases in the browser (writing KeePass files is to be implemented).
 
