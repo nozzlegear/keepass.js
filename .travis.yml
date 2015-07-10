@@ -1,10 +1,15 @@
 language: node_js
-before_script:
+
+before_install:
   - npm install -g bower
   - npm install -g tsd
   - npm install -g gulp-cli
   - bower install
   - gulp
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
 
 cache:
   directories:
