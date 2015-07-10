@@ -5,3 +5,9 @@ before_script:
   - npm install -g gulp-cli
   - bower install
   - gulp
+
+cache:
+  directories:
+    - node_modules
+    - bower_components
+    - typings
