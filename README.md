@@ -10,6 +10,22 @@ Compared to <a href="https://github.com/NeoXiD/" target="_blank">keepass.io</a>,
 
 The keepass decryption algorithm is based on: https://github.com/perfectapi/CKP
 
+## Usage
+
+```
+var keepass = new Keepass.Database();
+
+keepass.getPasswords(fileAsArrayBuffer, password)
+    .then(function (entries) {
+        var entry = entries[0];
+        console.log(entry.title);
+        console.log(entry.userName);
+        
+        var password = keepass.decryptProtectedData(entry.protectedData.password, keepass.streamKey))
+        console.log(password);
+    });
+```
+
 ## Building
 
 You must have the following tools installed:
