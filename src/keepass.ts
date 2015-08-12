@@ -152,7 +152,7 @@ module Keepass {
         /**
          * Returns the decrypted data from a protected element of a KDBX entry
          */
-        public getDecryptedEntry(protectedData, streamKey) {
+        public decryptProtectedData(protectedData, streamKey) {
             if (protectedData === undefined) return "";  //can happen with entries with no password
 
             var iv = [0xE8, 0x30, 0x09, 0x4B, 0x97, 0x20, 0x5D, 0x2A];

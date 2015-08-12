@@ -13,7 +13,7 @@ describe("kdbx", function () {
                     expect(entry.groupName).toBe("Root");
                     expect(entry.title).toBe("test_entry");
                     expect(entry.userName).toBe("test_username");
-                    expect(keepass.getDecryptedEntry(entry.protectedData.password, keepass.streamKey)).toBe("test_password");
+                    expect(keepass.decryptProtectedData(entry.protectedData.password, keepass.streamKey)).toBe("test_password");
 
                     done();
                 });
@@ -32,7 +32,7 @@ describe("kdbx", function () {
                     expect(entry.groupName).toBe("test group");
                     expect(entry.title).toBe("test_entry");
                     expect(entry.userName).toBe("test_username");
-                    expect(keepass.getDecryptedEntry(entry.protectedData.password, keepass.streamKey)).toBe("test_password");
+                    expect(keepass.decryptProtectedData(entry.protectedData.password, keepass.streamKey)).toBe("test_password");
 
                     done();
                 });
