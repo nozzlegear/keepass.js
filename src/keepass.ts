@@ -1,6 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-declare var Base64, pako, Salsa20, Case: any;
+declare var pako, Salsa20, Case: any;
 
 module Keepass {
     export class Database {
@@ -43,7 +43,7 @@ module Keepass {
         }
 
         getPasswords(buf, masterPassword, keyFile) {
-            var fileKey = keyFile ? Base64.decode(keyFile) : null;
+            var fileKey = keyFile ? atob(keyFile) : null;
 
             var h = this.headerParser.readHeader(buf);
             if (!h) throw new Error('Failed to read file header');
@@ -199,7 +199,7 @@ module Keepass {
                     var childNode = entryNode.children[j];
 
                     if (childNode.nodeName == "UUID") {
-                        entry.id = Util.convertArrayToUUID(Base64.decode(childNode.textContent));
+                        entry.id = Util.convertArrayToUUID(Util.str2ab(atob(childNode.textContent)));
                     } else if (childNode.nodeName == "IconID") {
                         entry.iconId = Number(childNode.textContent);  //integer
                     } else if (childNode.nodeName == "Tags" && childNode.textContent) {
@@ -216,7 +216,7 @@ module Keepass {
                         var protectedVal = valNode.hasAttribute('Protected');
 
                         if (protectedVal) {
-                            var encBytes = new Uint8Array(Base64.decode(val));
+                            var encBytes = new Uint8Array(Util.str2ab(atob(val)));
                             entry.protectedData[key] = {
                                 position: protectedPosition,
                                 data: encBytes

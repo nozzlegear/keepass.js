@@ -63,7 +63,7 @@ module Keepass {
                             position: salsaPosition
                         }
                     };
-                    currentEntry.password = Base64.encode(encPassword);  //not used - just for consistency with KDBX
+                    currentEntry.password = btoa(encPassword);  //not used - just for consistency with KDBX
 
                     salsaPosition += passwordBytes.byteLength;
                 }

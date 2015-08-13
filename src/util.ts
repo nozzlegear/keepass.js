@@ -14,5 +14,14 @@ module Keepass {
             }
             return result.join("");
         }
+        
+        public static str2ab(binaryString: String): ArrayBuffer {
+            var len = binaryString.length;
+            var bytes = new Uint8Array(len);
+            for (var i = 0; i < len; i++)        {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
     }
 }
