@@ -18,12 +18,6 @@ module.exports = function(config) {
       'build/**/*.js',
       'libs/**/*.js',
       'test/**/*.test.js',
-      'bower_components/cryptojslib/components/core.js',
-      'bower_components/cryptojslib/components/cipher-core.js',
-      'bower_components/cryptojslib/components/mode-ecb.js',
-      'bower_components/cryptojslib/components/aes.js',
-      'bower_components/cryptojslib/components/pad-nopadding.js',
-      'bower_components/cryptojslib/components/sha256.js',
 
       // note, that karma ships with a whitelist of file extensions that are treated as binary files.
       // .kdbx is not one of them, therefore the file must have one of the extensions that are whitelisted

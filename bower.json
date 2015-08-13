@@ -8,7 +8,5 @@
   "description": "The popular KeePass password manager as a web application",
   "homepage": "https://github.com/ulich/keepass.js",
   "dependencies": {
-    "cryptojslib": "~3.1.2",
-    "jdataview": "~2.5.0"
   }
 }
