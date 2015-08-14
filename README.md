@@ -33,10 +33,12 @@ keepass.getPasswords(fileAsArrayBuffer, password)
 
 ## Available distribution files
 
-keepass.js | Contains the code of this project only (you need to include keepass-libs.min.js separately)
-keepass.min.js | Minified keepass.js (you need to include keepass-libs.min.js separately)
+file                | description
+------------------- | -------------------------------------------------------------------------------------------
+keepass.js          | Contains the code of this project only (you need to include keepass-libs.min.js separately)
+keepass.min.js      | Minified keepass.js (you need to include keepass-libs.min.js separately)
 keepass-libs.min.js | Contains all 3rd party libraries required for keepass.js, minified
-keepass-all.min.js | keepass-libs.min.js + keepass.min.js
+keepass-all.min.js  | keepass-libs.min.js + keepass.min.js
 
 ## Building
 
