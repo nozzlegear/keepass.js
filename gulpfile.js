@@ -87,6 +87,7 @@ function gitCommit (runOpts) {
     ];
     
     if (yargs.argv.push) {
+        commands.push('git push');
         commands.push('git push --tags');
     }
     
