@@ -5,8 +5,7 @@
     "Timo Ulich <timo@ulich.net>"
   ],
   "license": "GPL2",
-  "description": "The popular KeePass password manager as a web application",
+  "description": "A JavaScript library for reading KeePass databases in the browser",
   "homepage": "https://github.com/ulich/keepass.js",
-  "dependencies": {
-  }
+  "dependencies": {}
 }
