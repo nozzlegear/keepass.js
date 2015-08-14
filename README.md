@@ -13,6 +13,10 @@ The keepass decryption algorithm is based on: https://github.com/perfectapi/CKP
 ## Usage
 
 ```
+bower install keepass.js
+
+<script src="bower_components/keepass.js/dist/keepass-all.min.js"></script>
+<script>
 var keepass = new Keepass.Database();
 
 keepass.getPasswords(fileAsArrayBuffer, password)
@@ -24,7 +28,15 @@ keepass.getPasswords(fileAsArrayBuffer, password)
         var password = keepass.decryptProtectedData(entry.protectedData.password, keepass.streamKey))
         console.log(password);
     });
+</script>
 ```
+
+## Available distribution files
+
+keepass.js | Contains the code of this project only (you need to include keepass-libs.min.js separately)
+keepass.min.js | Minified keepass.js (you need to include keepass-libs.min.js separately)
+keepass-libs.min.js | Contains all 3rd party libraries required for keepass.js, minified
+keepass-all.min.js | keepass-libs.min.js + keepass.min.js
 
 ## Building
 
