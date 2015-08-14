@@ -12,10 +12,15 @@ The keepass decryption algorithm is based on: https://github.com/perfectapi/CKP
 
 ## Usage
 
+Install the library from bower:
 ```
 bower install keepass.js
+```
 
+In your webpage:
+```html
 <script src="bower_components/keepass.js/dist/keepass-all.min.js"></script>
+
 <script>
 var keepass = new Keepass.Database();
 
