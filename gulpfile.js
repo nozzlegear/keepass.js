@@ -64,7 +64,7 @@ function gitCommit (runOpts) {
     ];
     
     if (yargs.argv.push) {
-        commands.push('git push');
+        commands.push('git push --tags');
     }
     
     // use gulp-run instead of gulp-git because gulp-git crashes the node process on my machine
