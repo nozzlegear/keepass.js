@@ -1,6 +1,6 @@
 {
   "name": "keepass.js",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "A JavaScript library for reading KeePass databases in the browser",
   "author": "Timo Ulich",
   "homepage": "https://github.com/ulich/keepass.js",
