@@ -4,8 +4,10 @@
   "authors": [
     "Timo Ulich <timo@ulich.net>"
   ],
-  "license": "GPL2",
+  "license": "MIT",
   "description": "A JavaScript library for reading KeePass databases in the browser",
   "homepage": "https://github.com/ulich/keepass.js",
-  "dependencies": {}
+  "dependencies": {},
+  "main": "dist/keepass.js",
+  "ignore": []
 }
