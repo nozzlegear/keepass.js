@@ -15,6 +15,21 @@ module Keepass {
             return result.join("");
         }
         
+        /**
+         * Converts the given ArrayBuffer to a binary string
+         */
+        public static ab2str(arr): String {
+            var binary = '';
+            var bytes = new Uint8Array(arr);
+            for (var i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return binary;
+        }
+        
+        /**
+         * Converts the given binaryString to an ArrayBuffer
+         */
         public static str2ab(binaryString: String): ArrayBuffer {
             var len = binaryString.length;
             var bytes = new Uint8Array(len);
@@ -22,6 +37,17 @@ module Keepass {
                 bytes[i] = binaryString.charCodeAt(i);
             }
             return bytes.buffer;
+        }
+        
+        public static hex2arr(hex: string) {
+            if (hex.length % 2 != 0 || !/^[0-9A-Fa-f]+$/.test(hex)) {
+                return [];
+            }
+            
+            var arr = [];
+            for (var i = 0; i < hex.length; i += 2)
+                arr.push(parseInt(hex.substr(i, 2), 16));
+            return arr;
         }
     }
 }
