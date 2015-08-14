@@ -33,6 +33,8 @@ keepass.getPasswords(fileAsArrayBuffer, password)
 
 ## Available distribution files
 
+The distribution files are in the <a href="https://github.com/ulich/keepass.js-bower">keepass.js-bower</a> git repository.
+
 file                | description
 ------------------- | -------------------------------------------------------------------------------------------
 keepass.js          | Contains the code of this project only (you need to include keepass-libs.min.js separately)
