@@ -54,17 +54,16 @@ You must have the following tools installed:
 - node.js
 - bower (npm install -g bower)
 - tsd (npm install -g tsd)
-- gulp-cli (npm install -g gulp-cli)
 
 Now run
 ```
 npm install
 bower install
 tsd install
-gulp
+npm run build
 ```
 
-For development, run `gulp watch` instead of `gulp` to automatically rebuild when changing the source code.
+For development, run `npm run build-watch` instead of `npm run build` to automatically rebuild when changing the source code.
 
 
 ## Running the tests

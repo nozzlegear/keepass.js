@@ -6,7 +6,10 @@
   "homepage": "https://github.com/ulich/keepass.js",
   "license": "MIT",
   "scripts": {
-    "test": "karma start karma-config.js"
+    "test": "karma start karma-config.js",
+    "build": "gulp",
+    "build-watch": "gulp watch",
+    "release": "gulp release"
   },
   "repository": {
     "type": "git",
