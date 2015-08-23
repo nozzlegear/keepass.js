@@ -19,7 +19,7 @@ describe("key file parser", function () {
     });
     
     it("should reject the promise if the keyfile is empty", function (done) {
-        loadFile('base/test/data/key_file_empty.dat', function (fileContents) {
+        fetchArrayBuffer('base/test/data/key_file_empty.dat').then(function (fileContents) {
             new Keepass.KeyFileParser().getKeyFromFile(fileContents)
                 .then(function (key) {
                     fail('The success callback should not be called');
@@ -29,32 +29,24 @@ describe("key file parser", function () {
                     expect(err.message).toBe('key file has zero bytes');
                     done();
                 });
-        });
+        }, done.fail);
     });
     
     function testParseKeyfile(url, expectedKey, done) {
-        loadFile(url, function (fileContents) {
+        fetchArrayBuffer(url).then(function (fileContents) {
             new Keepass.KeyFileParser().getKeyFromFile(fileContents)
                 .then(function (key) {
                     var keyBase64 = btoa(Keepass.Util.ab2str(key));
                     expect(keyBase64).toBe(expectedKey);
                     done();
-                });
-        });
+                }, done.fail);
+        }, done.fail);
     }
             
-    function loadFile(path, callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', path);
-        xhr.responseType = "arraybuffer";
-        xhr.onload = function (e) {
-            if (xhr.status == 200) {
-                callback(xhr.response);   
-            }
-            else {
-                throw new Error('Request to ' + path + " returned " + xhr.status);
-            }
-        };
-        xhr.send();
+    function fetchArrayBuffer(path) {
+        return fetch(path)
+            .then(function (response) {
+                return response.arrayBuffer(); 
+            });
     };
 });
