@@ -24,7 +24,7 @@ In your webpage:
 <script>
 var keepass = new Keepass.Database();
 
-keepass.getPasswords(fileAsArrayBuffer, password)
+keepass.getPasswords(fileAsArrayBuffer, password, keyFileAsArrayBuffer)
     .then(function (entries) {
         var entry = entries[0];
         console.log(entry.title);

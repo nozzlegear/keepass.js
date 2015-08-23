@@ -5,46 +5,10 @@ declare var pako, Salsa20, Case: any;
 module Keepass {
     export class Database {
         private headerParser = new HeaderParser();
+        private masterKeyUtil = new MasterKeyUtil();
         public streamKey;
 
-        private getKey(h, masterPassword, fileKey) {
-            var partPromises = [];
-            var SHA = {
-                name: "SHA-256"
-            };
-
-            if (masterPassword || !fileKey) {
-                var encoder = new TextEncoder();
-                var masterKey = encoder.encode(masterPassword);
-
-                var p = window.crypto.subtle.digest(SHA, new Uint8Array(masterKey));
-                partPromises.push(p);
-            }
-
-            if (fileKey) {
-                partPromises.push(Promise.resolve(fileKey));
-            }
-
-            return Promise.all(partPromises).then(function(parts) {
-                if (h.kdbx || partPromises.length > 1) {
-                    //kdbx, or kdb with fileKey + masterPassword, do the SHA a second time
-                    var compositeKeySource = new Uint8Array(32 * parts.length);
-                    for (var i = 0; i < parts.length; i++) {
-                        compositeKeySource.set(new Uint8Array(parts[i]), i * 32);
-                    }
-
-                    return window.crypto.subtle.digest(SHA, compositeKeySource);
-                } else {
-                    //kdb with just only fileKey or masterPassword (don't do a second SHA digest in this scenario)
-                    return partPromises[0];
-                }
-
-            });
-        }
-
-        getPasswords(buf, masterPassword, keyFile) {
-            var fileKey = keyFile ? atob(keyFile) : null;
-
+        getPasswords(buf, masterPassword, keyFile?) {
             var h = this.headerParser.readHeader(buf);
             if (!h) throw new Error('Failed to read file header');
             if (h.innerRandomStreamId != 2 && h.innerRandomStreamId != 0) throw new Error('Invalid Stream Key - Salsa20 is supported by this implementation, Arc4 and others not implemented.')
@@ -59,9 +23,7 @@ module Keepass {
                 iv: h.iv
             };
 
-            var compositeKeyPromise = this.getKey(h, masterPassword, fileKey);
-
-            return compositeKeyPromise.then((masterKey) => {
+            return this.masterKeyUtil.inferMasterKey(h, masterPassword, keyFile).then((masterKey) => {
                 //transform master key thousands of times
                 return this.aes_ecb_encrypt(h.transformSeed, masterKey, h.keyRounds);
             }).then(function(finalVal) {

@@ -1,9 +1,9 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-/**
- * Parses a KeePass key file
- */
 module Keepass {
+    /**
+    * Parses a KeePass key file
+    */
     export class KeyFileParser {
     
         public getKeyFromFile (arr) {
