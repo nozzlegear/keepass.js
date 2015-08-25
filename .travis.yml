@@ -15,7 +15,7 @@ before_script:
 
 after_script:
   # the environment variable CODECLIMATE_REPO_TOKEN is configured in travis
-  - node_modules/.bin/codeclimate-test-reporter < coverage/Chrome*/lcov.info
+  - node_modules/.bin/codeclimate-test-reporter < coverage/Firefox*/lcov.info
 
 cache:
   directories:
