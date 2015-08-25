@@ -1,6 +1,6 @@
 # keepass.js
 
-[![Build Status](https://travis-ci.org/ulich/keepass.js.svg?branch=master)](https://travis-ci.org/ulich/keepass.js) [![Test Coverage](https://codeclimate.com/github/ulich/keepass.js/badges/coverage.svg)](https://codeclimate.com/github/ulich/keepass.js/coverage) [![devDependency Status](https://david-dm.org/ulich/keepass.js/dev-status.svg)](https://david-dm.org/ulich/keepass.js#info=devDependencies)
+[![Build Status](https://travis-ci.org/ulich/keepass.js.svg?branch=master)](https://travis-ci.org/ulich/keepass.js) [![Test Coverage](https://codeclimate.com/github/ulich/keepass.js/badges/coverage.svg)](https://codeclimate.com/github/ulich/keepass.js/coverage) [![Code Climate](https://codeclimate.com/github/ulich/keepass.js/badges/gpa.svg)](https://codeclimate.com/github/ulich/keepass.js) [![devDependency Status](https://david-dm.org/ulich/keepass.js/dev-status.svg)](https://david-dm.org/ulich/keepass.js#info=devDependencies)
 
 A JavaScript library for reading <a href="http://keepass.info/" target="_blank">KeePass</a> databases in the browser (writing KeePass files is to be implemented).
 
