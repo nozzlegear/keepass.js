@@ -19,6 +19,7 @@
     "url": "https://github.com/ulich/keepass.js/issues"
   },
   "devDependencies": {
+    "codeclimate-test-reporter": "^0.1.0",
     "del": "^1.2.1",
     "gulp": "^3.9.0",
     "gulp-bump": "^0.3.1",

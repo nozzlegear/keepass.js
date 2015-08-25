@@ -43,6 +43,14 @@ module.exports = function(config) {
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress', 'coverage'],
+    
+    coverageReporter: {
+      reporters: [
+				{type: "lcov", dir: "coverage"},
+				{type: "text"},
+				{type: "text-summary"}
+			]
+    },
 
 
     // web server port
