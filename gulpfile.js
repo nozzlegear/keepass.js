@@ -29,7 +29,7 @@ gulp.task('minify', function () {
     return gulp.src(buildOutputDir + '/keepass.js')
         .pipe(uglify())
         .pipe(rename({ extname: '.min.js' }))
-        .pipe(gulp.dest(buildOutputDir)) 
+        .pipe(gulp.dest(buildOutputDir));
 });
 
 gulp.task('minify-libs', function () {
@@ -101,7 +101,7 @@ gulp.task('dist-build', function (cb) {
 
 gulp.task('bower-build', function (cb) {
     runSequence('clean-bower-repo', 'copy-to-bower-repository', cb);
-})
+});
 
 /** 
  * gulp release --type=major|minor|patch|prerelease
