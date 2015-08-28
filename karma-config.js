@@ -26,15 +26,13 @@ module.exports = function(config) {
     systemjs: {
       files: [
         'src/**/*.js',
-        'test/**/*.test.js',
-        'node_modules/babelify/node_modules/babel-core/browser.js',
+        'test/**/*.js'
       ],
       config: {
-        transpiler: 'babel',
+        transpiler: null, // disable additional transpiling, karma-babel-preprocessor already does this
         paths: {
           'systemjs': 'node_modules/systemjs/dist/system.js',
           'system-polyfills': 'node_modules/systemjs/dist/system-polyfills.js',
-          'babel': 'node_modules/babelify/node_modules/babel-core/browser.js',
           'es6-module-loader': 'node_modules/es6-module-loader/dist/es6-module-loader.js'
         }
       }
@@ -50,7 +48,14 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      //'src/**/*.js': 'coverage'
+      'src/**/*.js': ['babel', 'coverage'],
+      'test/**/*.js': ['babel']
+    },
+
+    babelPreprocessor: {
+      options: {
+        auxiliaryCommentBefore: 'istanbul ignore next'
+      }
     },
 
     // test results reporter to use
@@ -65,7 +70,6 @@ module.exports = function(config) {
         {type: "text-summary"}
       ]
     },
-
 
     // web server port
     port: 9876,
