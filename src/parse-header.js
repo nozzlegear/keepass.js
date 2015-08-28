@@ -2,7 +2,7 @@ import { littleEndian } from "./util.js"
 
 const AES_CIPHER_UUID = new Uint8Array([0x31, 0xc1, 0xf2, 0xe6, 0xbf, 0x71, 0x43, 0x50, 0xbe, 0x58, 0x05, 0x21, 0x6a, 0xfc, 0x5a, 0xff]);
         
-export function readHeader(buf) {
+export default function parseHeader(buf) {
     var sigHeader = new DataView(buf, 0, 8)
     var h = {
         sigKeePass: sigHeader.getUint32(0, littleEndian),

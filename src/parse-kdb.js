@@ -1,6 +1,6 @@
 import { littleEndian, convertArrayToUUID } from "./util.js"
 
-export function parse(buf, streamKey, h) {
+export default function parse(buf, streamKey, h) {
     
     var iv = [0xE8, 0x30, 0x09, 0x4B, 0x97, 0x20, 0x5D, 0x2A];
     var salsa = new Salsa20(new Uint8Array(streamKey), iv);

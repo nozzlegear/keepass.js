@@ -3,7 +3,7 @@ import * as util from "./util.js";
 /**
 * Parses a KeePass key file
 */
-export function getKeyFromFile (arr) {
+export default function parse(arr) {
     if (arr.byteLength == 0) {
         return Promise.reject(new Error('key file has zero bytes'));
     } else if (arr.byteLength == 32) {

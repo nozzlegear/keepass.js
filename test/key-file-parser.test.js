@@ -1,4 +1,4 @@
-import { getKeyFromFile } from "../src/key-file-parser.js";
+import parseKeyFile from "../src/parse-key-file.js";
 import { ab2str } from "../src/util.js";
 
 describe("key file parser", function () {
@@ -21,7 +21,7 @@ describe("key file parser", function () {
     
     it("should reject the promise if the keyfile is empty", function (done) {
         fetchArrayBuffer('base/test/data/key_file_empty.dat').then(function (fileContents) {
-            getKeyFromFile(fileContents)
+            parseKeyFile(fileContents)
                 .then(function (key) {
                     fail('The success callback should not be called');
                     done();
@@ -35,7 +35,7 @@ describe("key file parser", function () {
     
     function testParseKeyfile(url, expectedKey, done) {
         fetchArrayBuffer(url).then(function (fileContents) {
-            getKeyFromFile(fileContents)
+            parseKeyFile(fileContents)
                 .then(function (key) {
                     var keyBase64 = btoa(ab2str(key));
                     expect(keyBase64).toBe(expectedKey);

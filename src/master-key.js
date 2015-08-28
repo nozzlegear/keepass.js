@@ -1,13 +1,13 @@
-import { getKeyFromFile } from "./key-file-parser.js";
+import parseKeyFile from "./parse-key-file.js";
 
 /**
  * Infers the master key from the master password and additionally from a keyfile
  */
- export function inferMasterKey(h, masterPassword, keyFile?) {
+ export default function inferMasterKey(h, masterPassword, keyFile?) {
     if (keyFile) {
-        return getKeyFromFile(keyFile).then((key) => {
+        return parseKeyFile(keyFile).then((key) => {
             return infer(h, masterPassword, key);
-        });               
+        });
     }
     else {
         return infer(h, masterPassword);

@@ -1,12 +1,12 @@
-import * as headerParser from "./header-parser.js";
-import * as masterKeyUtil from "./master-key-utils.js";
-import * as kdbParser from "./kdb-parser.js";
-import { littleEndian, convertArrayToUUID, str2ab, ab2str } from "./util.js"
+import parseHeader from "./parse-header.js";
+import masterKey from "./master-key.js";
+import parseKdb from "./parse-kdb.js";
+import * as util from "./util.js"
 
 export class Database {
 
     getPasswords(buf, masterPassword, keyFile?) {
-        var h = headerParser.readHeader(buf);
+        var h = parseHeader(buf);
         if (!h) throw new Error('Failed to read file header');
         if (h.innerRandomStreamId != 2 && h.innerRandomStreamId != 0) throw new Error('Invalid Stream Key - Salsa20 is supported by this implementation, Arc4 and others not implemented.')
 
@@ -20,7 +20,7 @@ export class Database {
             iv: h.iv
         };
 
-        return masterKeyUtil.inferMasterKey(h, masterPassword, keyFile).then((masterKey) => {
+        return masterKey(h, masterPassword, keyFile).then((masterKey) => {
             //transform master key thousands of times
             return this._aes_ecb_encrypt(h.transformSeed, masterKey, h.keyRounds);
         }).then(function(finalVal) {
@@ -55,8 +55,8 @@ export class Database {
                 var blockArray = [], totalDataLength = 0;
                 while (!done) {
                     var blockHeader = new DataView(decryptedData, pos, 40);
-                    var blockId = blockHeader.getUint32(0, littleEndian);
-                    var blockSize = blockHeader.getUint32(36, littleEndian);
+                    var blockId = blockHeader.getUint32(0, util.littleEndian);
+                    var blockSize = blockHeader.getUint32(36, util.littleEndian);
                     var blockHash = new Uint8Array(decryptedData, pos + 4, 32);
 
                     if (blockSize > 0) {
@@ -92,7 +92,7 @@ export class Database {
             } else {
                 return this._decryptStreamKey(h.protectedStreamKey).then((streamKey) => {
                     //kdb
-                    var entries = kdbParser.parse(decryptedData, streamKey, h);
+                    var entries = parseKdb(decryptedData, streamKey, h);
                     return entries;
                 });
             }
@@ -158,7 +158,7 @@ export class Database {
                 var childNode = entryNode.children[j];
 
                 if (childNode.nodeName == "UUID") {
-                    entry.id = convertArrayToUUID(str2ab(atob(childNode.textContent)));
+                    entry.id = util.convertArrayToUUID(util.str2ab(atob(childNode.textContent)));
                 } else if (childNode.nodeName == "IconID") {
                     entry.iconId = Number(childNode.textContent);  //integer
                 } else if (childNode.nodeName == "Tags" && childNode.textContent) {
@@ -175,7 +175,7 @@ export class Database {
                     var protectedVal = valNode.hasAttribute('Protected');
 
                     if (protectedVal) {
-                        var encBytes = new Uint8Array(str2ab(atob(val)));
+                        var encBytes = new Uint8Array(util.str2ab(atob(val)));
                         entry.protectedData[key] = {
                             position: protectedPosition,
                             data: encBytes
