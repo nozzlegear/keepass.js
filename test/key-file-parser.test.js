@@ -1,4 +1,5 @@
 import { getKeyFromFile } from "../src/key-file-parser.js";
+import { ab2str } from "../src/util.js";
 
 describe("key file parser", function () {
     it("should extract the key from an xml keyfile", function (done) {
@@ -49,14 +50,4 @@ describe("key file parser", function () {
                 return response.arrayBuffer(); 
             });
     };
-
-    // TODO: Use function from util
-    function ab2str(arr) {
-        var binary = '';
-        var bytes = new Uint8Array(arr);
-        for (var i = 0; i < bytes.byteLength; i++) {
-            binary += String.fromCharCode(bytes[i]);
-        }
-        return binary;
-    }
 });
