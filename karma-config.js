@@ -10,20 +10,35 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine'],
+    frameworks: ['systemjs', 'jasmine'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      'dist/keepass.js',
       'libs/**/*.js',
-      'test/**/*.test.js',
 
       // note, that karma ships with a whitelist of file extensions that are treated as binary files.
       // .kdbx is not one of them, therefore the file must have one of the extensions that are whitelisted
       // (.dat being one of them). See https://github.com/karma-runner/karma/issues/1070
       { pattern: 'test/**/*.dat', watched: true, included: false, served: true }
     ],
+
+    systemjs: {
+      files: [
+        'src/**/*.js',
+        'test/**/*.test.js',
+        'node_modules/babelify/node_modules/babel-core/browser.js',
+      ],
+      config: {
+        transpiler: 'babel',
+        paths: {
+          'systemjs': 'node_modules/systemjs/dist/system.js',
+          'system-polyfills': 'node_modules/systemjs/dist/system-polyfills.js',
+          'babel': 'node_modules/babelify/node_modules/babel-core/browser.js',
+          'es6-module-loader': 'node_modules/es6-module-loader/dist/es6-module-loader.js'
+        }
+      }
+    },
 
 
     // list of files to exclude
@@ -35,9 +50,8 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'dist/keepass.js': 'coverage'
+      //'src/**/*.js': 'coverage'
     },
-
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -46,10 +60,10 @@ module.exports = function(config) {
     
     coverageReporter: {
       reporters: [
-				{type: "lcov", dir: "coverage"},
-				{type: "text"},
-				{type: "text-summary"}
-			]
+        {type: "lcov", dir: "coverage"},
+        {type: "text"},
+        {type: "text-summary"}
+      ]
     },
 
 

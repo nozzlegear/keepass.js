@@ -1,5 +1,7 @@
+var babelify = require('babelify');
+var browserify = require('browserify');
 var gulp = require('gulp');
-var ts = require('gulp-typescript');
+var babel = require('gulp-babel');
 var bump = require('gulp-bump');
 var run = require('gulp-run');
 var uglify = require('gulp-uglify');
@@ -8,21 +10,23 @@ var concat = require('gulp-concat');
 var del = require('del');
 var yargs = require('yargs');
 var runSequence = require('run-sequence');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 
 var bowerRepository = '../keepass.js-bower';
 var buildOutputDir = 'dist';
 
-gulp.task('compile-ts', function () {
-
-    var tsProject = ts.createProject('src/tsconfig.json', {
-        typescript: require('typescript')
+gulp.task('compile', function () {
+    var b = browserify({
+        entries: './src/keepass.js',
+        transform: [babelify],
+        standalone: 'Keepass'
     });
-    
-    var tsResult = tsProject.src()
-        .pipe(ts(tsProject));
 
-    tsResult.dts.pipe(gulp.dest(buildOutputDir));
-    return tsResult.js.pipe(gulp.dest(buildOutputDir));
+    return b.bundle()
+        .pipe(source('keepass.js'))
+        .pipe(buffer())
+        .pipe(gulp.dest(buildOutputDir + '/'))
 });
 
 gulp.task('minify', function () {
@@ -45,8 +49,8 @@ gulp.task('concat-with-libs', function () {
         .pipe(gulp.dest(buildOutputDir)); 
 });
 
-gulp.task('watch', ['compile-ts'], function () {
-    return gulp.watch('src/**/*.ts', ['compile-ts']);
+gulp.task('watch', ['compile'], function () {
+    return gulp.watch('src/**/*.js', ['compile']);
 });
 
 gulp.task('clean', function (cb) {
@@ -96,7 +100,7 @@ function gitCommit (runOpts) {
 }
 
 gulp.task('dist-build', function (cb) {
-    runSequence('clean', 'compile-ts', 'minify', 'minify-libs', 'concat-with-libs', cb);
+    runSequence('clean', 'compile', 'minify', 'minify-libs', 'concat-with-libs', cb);
 });
 
 gulp.task('bower-build', function (cb) {
@@ -112,4 +116,4 @@ gulp.task('release', function (cb) {
     runSequence('bump-version', 'dist-build', 'bower-build', 'git-commit-bower-repo', 'git-commit', cb);
 });
 
-gulp.task('default', ['compile-ts']);
+gulp.task('default', ['compile']);

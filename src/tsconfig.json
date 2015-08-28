@@ -1,7 +1,0 @@
-{
-   "compilerOptions": {
-        "out": "../dist/keepass.js",
-        "target": "ES5",
-        "declaration": true
-    }
-}

@@ -1,4 +1,4 @@
-/// <reference path="../typings/tsd.d.ts" />
+import * as Keepass from "../src/keepass.js"
 
 describe("kdbx", function () {
     it("should decrypt a kdbx file properly", function (done) {

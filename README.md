@@ -53,13 +53,11 @@ You must have the following tools installed:
 
 - node.js
 - bower (npm install -g bower)
-- tsd (npm install -g tsd)
 
 Now run
 ```
 npm install
 bower install
-tsd install
 npm run build
 ```
 

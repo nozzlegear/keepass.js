@@ -1,4 +1,4 @@
-/// <reference path="../typings/tsd.d.ts" />
+import { getKeyFromFile } from "../src/key-file-parser.js";
 
 describe("key file parser", function () {
     it("should extract the key from an xml keyfile", function (done) {
@@ -20,7 +20,7 @@ describe("key file parser", function () {
     
     it("should reject the promise if the keyfile is empty", function (done) {
         fetchArrayBuffer('base/test/data/key_file_empty.dat').then(function (fileContents) {
-            new Keepass.KeyFileParser().getKeyFromFile(fileContents)
+            getKeyFromFile(fileContents)
                 .then(function (key) {
                     fail('The success callback should not be called');
                     done();
@@ -34,9 +34,9 @@ describe("key file parser", function () {
     
     function testParseKeyfile(url, expectedKey, done) {
         fetchArrayBuffer(url).then(function (fileContents) {
-            new Keepass.KeyFileParser().getKeyFromFile(fileContents)
+            getKeyFromFile(fileContents)
                 .then(function (key) {
-                    var keyBase64 = btoa(Keepass.Util.ab2str(key));
+                    var keyBase64 = btoa(ab2str(key));
                     expect(keyBase64).toBe(expectedKey);
                     done();
                 }, done.fail);
@@ -49,4 +49,14 @@ describe("key file parser", function () {
                 return response.arrayBuffer(); 
             });
     };
+
+    // TODO: Use function from util
+    function ab2str(arr) {
+        var binary = '';
+        var bytes = new Uint8Array(arr);
+        for (var i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return binary;
+    }
 });
