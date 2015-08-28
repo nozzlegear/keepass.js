@@ -1,7 +1,6 @@
 var babelify = require('babelify');
 var browserify = require('browserify');
 var gulp = require('gulp');
-var babel = require('gulp-babel');
 var bump = require('gulp-bump');
 var run = require('gulp-run');
 var uglify = require('gulp-uglify');
@@ -26,7 +25,7 @@ gulp.task('compile', function () {
     return b.bundle()
         .pipe(source('keepass.js'))
         .pipe(buffer())
-        .pipe(gulp.dest(buildOutputDir + '/'))
+        .pipe(gulp.dest(buildOutputDir + '/'));
 });
 
 gulp.task('minify', function () {

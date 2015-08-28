@@ -39,12 +39,13 @@ export function str2ab(binaryString) {
 }
 
 export function hex2arr(hex) {
-    if (hex.length % 2 != 0 || !/^[0-9A-Fa-f]+$/.test(hex)) {
+    if (hex.length % 2 !== 0 || !/^[0-9A-Fa-f]+$/.test(hex)) {
         return [];
     }
     
     let arr = [];
-    for (let i = 0; i < hex.length; i += 2)
+    for (let i = 0; i < hex.length; i += 2) {
         arr.push(parseInt(hex.substr(i, 2), 16));
+    }
     return arr;
 }

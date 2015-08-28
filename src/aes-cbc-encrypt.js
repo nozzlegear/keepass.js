@@ -5,9 +5,7 @@ export default function aesCbcEncrypt(rawKey, data, rounds) {
     let blockPromises = new Array(blockCount);
     for (let i = 0; i < blockCount; i++) {
         let block = data.subarray(i * 16, i * 16 + 16);
-        blockPromises[i] = ((iv) => {
-            return _aesCbcRounds(iv, rawKey, rounds);
-        })(block);
+        blockPromises[i] = _aesCbcRounds(block, rawKey, rounds);
     }
     return Promise.all(blockPromises).then((blocks) => {
         //we now have the blocks, so chain them back together
@@ -23,7 +21,7 @@ export default function aesCbcEncrypt(rawKey, data, rounds) {
 * Performs rounds of CBC encryption on data using rawKey
 */
 function _aesCbcRounds(data, rawKey, rounds) {
-    if (rounds == 0) {
+    if (rounds === 0) {
         //just pass back the current value
         return data;
     } else if (rounds > 0xFFFF) {
