@@ -2,17 +2,17 @@ import { littleEndian, convertArrayToUUID } from "./util.js"
 
 export default function parse(buf, streamKey, h) {
     
-    var iv = [0xE8, 0x30, 0x09, 0x4B, 0x97, 0x20, 0x5D, 0x2A];
-    var salsa = new Salsa20(new Uint8Array(streamKey), iv);
-    var salsaPosition = 0;
+    let iv = [0xE8, 0x30, 0x09, 0x4B, 0x97, 0x20, 0x5D, 0x2A];
+    let salsa = new Salsa20(new Uint8Array(streamKey), iv);
+    let salsaPosition = 0;
 
-    var pos = 0;
-    var dv = new DataView(buf);
-    var groups = [];
-    for (var i = 0; i < h.numberOfGroups; i++) {
-        var fieldType = 0, fieldSize = 0;
-        var currentGroup = {};
-        var preventInfinite = 100;
+    let pos = 0;
+    let dv = new DataView(buf);
+    let groups = [];
+    for (let i = 0; i < h.numberOfGroups; i++) {
+        let fieldType = 0, fieldSize = 0;
+        let currentGroup = {};
+        let preventInfinite = 100;
         while (fieldType != 0xFFFF && preventInfinite > 0) {
             fieldType = dv.getUint16(pos, littleEndian);
             fieldSize = dv.getUint32(pos + 2, littleEndian);
@@ -26,11 +26,11 @@ export default function parse(buf, streamKey, h) {
         groups.push(currentGroup);
     }
 
-    var entries = [];
-    for (var i = 0; i < h.numberOfEntries; i++) {
-        var fieldType = 0, fieldSize = 0;
-        var currentEntry: any = { keys: [] };
-        var preventInfinite = 100;
+    let entries = [];
+    for (let i = 0; i < h.numberOfEntries; i++) {
+        let fieldType = 0, fieldSize = 0;
+        let currentEntry: any = { keys: [] };
+        let preventInfinite = 100;
         while (fieldType != 0xFFFF && preventInfinite > 0) {
             fieldType = dv.getUint16(pos, littleEndian);
             fieldSize = dv.getUint32(pos + 2, littleEndian);
@@ -43,16 +43,16 @@ export default function parse(buf, streamKey, h) {
 
         //if (Case.constant(currentEntry.title) != "META_INFO") {
         //meta-info items are not actual password entries
-        currentEntry.group = groups.filter(function(grp) {
+        currentEntry.group = groups.filter((grp) => {
             return grp.id == currentEntry.groupId;
         })[0];
         currentEntry.groupName = currentEntry.group.name;
 
         //in-memory-protect the password in the same way as on KDBX
         if (currentEntry.password) {
-            var encoder = new TextEncoder();
-            var passwordBytes = encoder.encode(currentEntry.password);
-            var encPassword = salsa.encrypt(new Uint8Array(passwordBytes));
+            let encoder = new TextEncoder();
+            let passwordBytes = encoder.encode(currentEntry.password);
+            let encPassword = salsa.encrypt(new Uint8Array(passwordBytes));
             currentEntry.protectedData = {
                 password: {
                     data: encPassword,
@@ -77,12 +77,12 @@ export default function parse(buf, streamKey, h) {
 
 //read KDB entry field
 function readEntryField(fieldType, fieldSize, buf, pos, entry) {
-    var dv = new DataView(buf, pos, fieldSize);
-    var arr = new Uint8Array(0);
+    let dv = new DataView(buf, pos, fieldSize);
+    let arr = new Uint8Array(0);
     if (fieldSize > 0) {
         arr = new Uint8Array(buf, pos, fieldSize - 1);
     }
-    var decoder = new TextDecoder();
+    let decoder = new TextDecoder();
 
     switch (fieldType) {
         case 0x0000:
@@ -140,8 +140,8 @@ function readEntryField(fieldType, fieldSize, buf, pos, entry) {
 }
 
 function readGroupField(fieldType, fieldSize, buf, pos, group) {
-    var dv = new DataView(buf, pos, fieldSize);
-    var arr = new Uint8Array(0);
+    let dv = new DataView(buf, pos, fieldSize);
+    let arr = new Uint8Array(0);
     if (fieldSize > 0) {
         arr = new Uint8Array(buf, pos, fieldSize - 1);
     }
@@ -154,7 +154,7 @@ function readGroupField(fieldType, fieldSize, buf, pos, group) {
             group.id = dv.getUint32(0, littleEndian);
             break;
         case 0x0002:
-            var decoder = new TextDecoder();
+            let decoder = new TextDecoder();
             group.name = decoder.decode(arr);
             break;
         /*

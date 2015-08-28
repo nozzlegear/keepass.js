@@ -20,8 +20,8 @@ export function convertArrayToUUID(arr) {
 export function ab2str(arr) {
     let binary = '';
     let bytes = new Uint8Array(arr);
-    for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
+    for (let byte of bytes) {
+        binary += String.fromCharCode(byte);
     }
     return binary;
 }

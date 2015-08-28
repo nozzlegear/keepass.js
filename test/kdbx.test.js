@@ -1,4 +1,5 @@
 import * as Keepass from "../src/keepass.js"
+import { fetchArrayBuffer } from "./libs/test-utils.js";
 
 describe("kdbx", function () {
     it("should decrypt a kdbx file properly", function (done) {
@@ -6,7 +7,7 @@ describe("kdbx", function () {
             var keepass = new Keepass.Database();
 
             keepass.getPasswords(fileContents, "test")
-                .then(function (entries) {
+                .then((entries) => {
                     expect(entries.length).toBe(1);
 
                     var entry = entries[0];
@@ -25,13 +26,11 @@ describe("kdbx", function () {
             fetchArrayBuffer('base/test/data/database_with_xml_keyfile.kdbx.dat'),
             fetchArrayBuffer('base/test/data/key_file_xml.dat')
         ])
-        .then(function (results) {
-            var fileContents = results[0];
-            var keyFile = results[1];
+        .then(([fileContents, keyFile]) => {
             var keepass = new Keepass.Database();
 
             keepass.getPasswords(fileContents, "test", keyFile)
-                .then(function (entries) {
+                .then((entries) => {
                     expect(entries.length).toBe(1);
 
                     var entry = entries[0];
@@ -50,7 +49,7 @@ describe("kdbx", function () {
             var keepass = new Keepass.Database();
 
             keepass.getPasswords(fileContents, "test")
-                .then(function (entries) {
+                .then((entries) => {
                     expect(entries.length).toBe(1);
 
                     var entry = entries[0];
@@ -63,11 +62,4 @@ describe("kdbx", function () {
                 }, done.fail);
         }, done.fail);
     });
-
-    function fetchArrayBuffer(path) {
-        return fetch(path)
-            .then(function (response) {
-                return response.arrayBuffer(); 
-            });
-    };
 });

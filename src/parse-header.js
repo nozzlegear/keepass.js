@@ -3,18 +3,18 @@ import { littleEndian } from "./util.js"
 const AES_CIPHER_UUID = new Uint8Array([0x31, 0xc1, 0xf2, 0xe6, 0xbf, 0x71, 0x43, 0x50, 0xbe, 0x58, 0x05, 0x21, 0x6a, 0xfc, 0x5a, 0xff]);
         
 export default function parseHeader(buf) {
-    var sigHeader = new DataView(buf, 0, 8)
-    var h = {
+    let sigHeader = new DataView(buf, 0, 8)
+    let h = {
         sigKeePass: sigHeader.getUint32(0, littleEndian),
         sigKeePassType: sigHeader.getUint32(4, littleEndian)
     };
 
-    var DBSIG_KEEPASS = 0x9AA2D903;
-    var DBSIG_KDBX = 0xB54BFB67,
+    let DBSIG_KEEPASS = 0x9AA2D903;
+    let DBSIG_KDBX = 0xB54BFB67,
         DBSIG_KDBX_ALPHA = 0xB54BFB66,
         DBSIG_KDB = 0xB54BFB55,
         DBSIG_KDB_NEW = 0xB54BFB65;
-    var VERSION_KDBX = 3;
+    let VERSION_KDBX = 3;
     if (h.sigKeePass != DBSIG_KEEPASS || (h.sigKeePassType != DBSIG_KDBX && h.sigKeePassType != DBSIG_KDBX_ALPHA && h.sigKeePassType != DBSIG_KDB && h.sigKeePassType != DBSIG_KDB_NEW)) {
         //fail
         console.log("Signature fail.  sig 1:" + h.sigKeePass.toString(16) + ", sig2:" + h.sigKeePassType.toString(16));
@@ -33,13 +33,13 @@ export default function parseHeader(buf) {
 }
     
 function readKdbHeader(buf, position, h) {
-    var FLAG_SHA2 = 1;
-    var FLAG_RIJNDAEL = 2;
-    var FLAG_ARCFOUR = 4;
-    var FLAG_TWOFISH = 8;
+    let FLAG_SHA2 = 1;
+    let FLAG_RIJNDAEL = 2;
+    let FLAG_ARCFOUR = 4;
+    let FLAG_TWOFISH = 8;
 
-    var dv = new DataView(buf, position, 116);
-    var flags = dv.getUint32(0, littleEndian);
+    let dv = new DataView(buf, position, 116);
+    let flags = dv.getUint32(0, littleEndian);
     if ((flags & FLAG_RIJNDAEL) != FLAG_RIJNDAEL) {
         throw new Error('We only support AES (aka Rijndael) encryption on KeePass KDB files.  This file is using something else.');
     }
@@ -72,18 +72,18 @@ function readKdbHeader(buf, position, h) {
     
 function readKdbxHeader(buf, position, h) {
     try {
-        var version = new DataView(buf, position, 4)
+        let version = new DataView(buf, position, 4)
         h.majorVersion = version.getUint16(0, littleEndian);
         h.minorVersion = version.getUint16(2, littleEndian);
         position += 4;
 
-        var done = false;
+        let done = false;
         while (!done) {
-            var descriptor = new DataView(buf, position, 3);
-            var fieldId = descriptor.getUint8(0);
-            var len = descriptor.getUint16(1, littleEndian);
+            let descriptor = new DataView(buf, position, 3);
+            let fieldId = descriptor.getUint8(0);
+            let len = descriptor.getUint16(1, littleEndian);
 
-            var dv = new DataView(buf, position + 3, len);
+            let dv = new DataView(buf, position + 3, len);
             //console.log("fieldid " + fieldId + " found at " + position);
             position += 3;
             switch (fieldId) {

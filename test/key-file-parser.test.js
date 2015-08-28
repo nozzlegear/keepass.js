@@ -1,5 +1,6 @@
 import parseKeyFile from "../src/parse-key-file.js";
 import { ab2str } from "../src/util.js";
+import { fetchArrayBuffer } from "./libs/test-utils.js";
 
 describe("key file parser", function () {
     it("should extract the key from an xml keyfile", function (done) {
@@ -20,13 +21,13 @@ describe("key file parser", function () {
     });
     
     it("should reject the promise if the keyfile is empty", function (done) {
-        fetchArrayBuffer('base/test/data/key_file_empty.dat').then(function (fileContents) {
+        fetchArrayBuffer('base/test/data/key_file_empty.dat').then((fileContents) => {
             parseKeyFile(fileContents)
-                .then(function (key) {
+                .then((key) => {
                     fail('The success callback should not be called');
                     done();
                 })
-                .catch(function (err) {
+                .catch((err) => {
                     expect(err.message).toBe('key file has zero bytes');
                     done();
                 });
@@ -36,18 +37,11 @@ describe("key file parser", function () {
     function testParseKeyfile(url, expectedKey, done) {
         fetchArrayBuffer(url).then(function (fileContents) {
             parseKeyFile(fileContents)
-                .then(function (key) {
+                .then((key) => {
                     var keyBase64 = btoa(ab2str(key));
                     expect(keyBase64).toBe(expectedKey);
                     done();
                 }, done.fail);
         }, done.fail);
     }
-            
-    function fetchArrayBuffer(path) {
-        return fetch(path)
-            .then(function (response) {
-                return response.arrayBuffer(); 
-            });
-    };
 });
