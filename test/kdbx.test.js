@@ -1,65 +1,49 @@
 import * as Keepass from "../src/keepass.js"
 import { fetchArrayBuffer } from "./libs/test-utils.js";
 
-describe("kdbx", function () {
-    it("should decrypt a kdbx file properly", function (done) {
-        fetchArrayBuffer('base/test/data/database_simple.kdbx.dat').then(function (fileContents) {
-            var keepass = new Keepass.Database();
-
-            keepass.getPasswords(fileContents, "test")
-                .then((entries) => {
-                    expect(entries.length).toBe(1);
-
-                    var entry = entries[0];
-                    expect(entry.groupName).toBe("Root");
-                    expect(entry.title).toBe("test_entry");
-                    expect(entry.userName).toBe("test_username");
-                    expect(keepass.decryptProtectedData(entry.protectedData.password, keepass.streamKey)).toBe("test_password");
-
-                    done();
-                }, done.fail);
+describe("kdbx", () => {
+    it("should decrypt a kdbx file properly", (done) => {
+        fetchArrayBuffer('base/test/data/database_simple.kdbx.dat').then((fileContents) => {
+            decryptDatabaseAndVerify(done, fileContents, "test");
         }, done.fail);
     });
     
-    it("should decrypt a kdbx file protected with xml keyfile properly", function (done) {
+    it("should decrypt a kdbx file protected with xml keyfile properly", (done) => {
         Promise.all([
             fetchArrayBuffer('base/test/data/database_with_xml_keyfile.kdbx.dat'),
             fetchArrayBuffer('base/test/data/key_file_xml.dat')
         ])
         .then(([fileContents, keyFile]) => {
-            var keepass = new Keepass.Database();
+            decryptDatabaseAndVerify(done, fileContents, "test", keyFile);
+        }, done.fail);
+    });
 
-            keepass.getPasswords(fileContents, "test", keyFile)
-                .then((entries) => {
-                    expect(entries.length).toBe(1);
-
-                    var entry = entries[0];
-                    expect(entry.groupName).toBe("Root");
-                    expect(entry.title).toBe("test_entry");
-                    expect(entry.userName).toBe("test_username");
-                    expect(keepass.decryptProtectedData(entry.protectedData.password, keepass.streamKey)).toBe("test_password");
-
-                    done();
-                }, done.fail);
+    it("should decrypt a kdbx file that was encrypted with a high number of transformation rounds properly", (done) => {
+        fetchArrayBuffer('base/test/data/database_70000_rounds.kdbx.dat').then((fileContents) => {
+            decryptDatabaseAndVerify(done, fileContents, "test");
         }, done.fail);
     });
     
-    it("should decrypt a kdb file properly", function (done) {
-        fetchArrayBuffer('base/test/data/database_simple.kdb.dat').then(function (fileContents) {
-            var keepass = new Keepass.Database();
-
-            keepass.getPasswords(fileContents, "test")
-                .then((entries) => {
-                    expect(entries.length).toBe(1);
-
-                    var entry = entries[0];
-                    expect(entry.groupName).toBe("test group");
-                    expect(entry.title).toBe("test_entry");
-                    expect(entry.userName).toBe("test_username");
-                    expect(keepass.decryptProtectedData(entry.protectedData.password, keepass.streamKey)).toBe("test_password");
-
-                    done();
-                }, done.fail);
+    it("should decrypt a kdb file properly", (done) => {
+        fetchArrayBuffer('base/test/data/database_simple.kdb.dat').then((fileContents) => {
+            decryptDatabaseAndVerify(done, fileContents, "test");
         }, done.fail);
     });
+
+    function decryptDatabaseAndVerify(done, fileContents, password, keyFile) {
+        var db = new Keepass.Database();
+
+        db.getPasswords(fileContents, password, keyFile)
+            .then((entries) => {
+                expect(entries.length).toBe(1);
+
+                var entry = entries[0];
+                expect(entry.groupName).toBe("test group");
+                expect(entry.title).toBe("test_entry");
+                expect(entry.userName).toBe("test_username");
+                expect(db.decryptProtectedData(entry.protectedData.password, db.streamKey)).toBe("test_password");
+
+                done();
+            }, done.fail);
+    }
 });
