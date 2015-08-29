@@ -17,12 +17,6 @@ describe("kdbx", () => {
             decryptDatabaseAndVerify(done, fileContents, "test", keyFile);
         }, done.fail);
     });
-
-    it("should decrypt a kdbx file that was encrypted with a high number of transformation rounds properly", (done) => {
-        fetchArrayBuffer('base/test/data/database_70000_rounds.kdbx.dat').then((fileContents) => {
-            decryptDatabaseAndVerify(done, fileContents, "test");
-        }, done.fail);
-    });
     
     it("should decrypt a kdb file properly", (done) => {
         fetchArrayBuffer('base/test/data/database_simple.kdb.dat').then((fileContents) => {

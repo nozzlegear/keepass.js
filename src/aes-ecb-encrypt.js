@@ -1,3 +1,12 @@
+/**
+ * Encrypts data with rawKey using the AES-ECB algorithm.
+ * Data will be encrypted multiple times if rounds is greater 1, taking the result of
+ * the prior encryption and encrypting it again with the same key
+ *
+ * @param {ArrayBuffer} rawKey - The key to encrypt data with
+ * @param {ArrayBuffer} data - The data to encrypt
+ * @param {int} rounds - The number of rounds to encrypt data with key
+ */
 export default function aesEcbEncrypt(rawKey, data, rounds) {
     data = new Uint8Array(data);
     //Simulate ECB encryption by using IV of the data.
