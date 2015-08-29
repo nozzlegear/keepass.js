@@ -1,11 +1,11 @@
-export default function aesCbcEncrypt(rawKey, data, rounds) {
+export default function aesEcbEncrypt(rawKey, data, rounds) {
     data = new Uint8Array(data);
     //Simulate ECB encryption by using IV of the data.
     let blockCount = data.byteLength / 16;
     let blockPromises = new Array(blockCount);
     for (let i = 0; i < blockCount; i++) {
         let block = data.subarray(i * 16, i * 16 + 16);
-        blockPromises[i] = _aesCbcRounds(block, rawKey, rounds);
+        blockPromises[i] = _aesEcbRounds(block, rawKey, rounds);
     }
     return Promise.all(blockPromises).then((blocks) => {
         //we now have the blocks, so chain them back together
@@ -20,22 +20,22 @@ export default function aesCbcEncrypt(rawKey, data, rounds) {
 /*
 * Performs rounds of CBC encryption on data using rawKey
 */
-function _aesCbcRounds(data, rawKey, rounds) {
+function _aesEcbRounds(data, rawKey, rounds) {
     if (rounds === 0) {
         //just pass back the current value
         return data;
     } else if (rounds > 0xFFFF) {
         //limit memory use to avoid chrome crash:
-        return _aesCbcRoundsSingle(data, rawKey, 0xFFFF).then((result) => {
-            return _aesCbcRounds(result, rawKey, rounds - 0xFFFF);
+        return _aesEcbRoundsSingle(data, rawKey, 0xFFFF).then((result) => {
+            return _aesEcbRounds(result, rawKey, rounds - 0xFFFF);
         });
     } else {
         //last iteration, or only iteration if original rounds was low:
-        return _aesCbcRoundsSingle(data, rawKey, rounds);
+        return _aesEcbRoundsSingle(data, rawKey, rounds);
     }
 }
 
-function _aesCbcRoundsSingle(data, rawKey, rounds) {
+function _aesEcbRoundsSingle(data, rawKey, rounds) {
     let AES = {
         name: "AES-CBC",
         iv: data

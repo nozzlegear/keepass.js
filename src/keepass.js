@@ -1,7 +1,7 @@
 import parseHeader from "./parse-header.js";
 import masterKey from "./master-key.js";
 import parseKdb from "./parse-kdb.js";
-import aesCbcEncrypt from "./aes-cbc-encrypt.js";
+import aesEcbEncrypt from "./aes-ecb-encrypt.js";
 import * as util from "./util.js"
 
 export class Database {
@@ -23,7 +23,7 @@ export class Database {
 
         return masterKey(h, masterPassword, keyFile).then((masterKey) => {
             //transform master key thousands of times
-            return aesCbcEncrypt(h.transformSeed, masterKey, h.keyRounds);
+            return aesEcbEncrypt(h.transformSeed, masterKey, h.keyRounds);
         }).then(function(finalVal) {
             //do a final SHA-256 on the transformed key
             return window.crypto.subtle.digest({
