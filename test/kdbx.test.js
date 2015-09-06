@@ -8,6 +8,16 @@ describe("kdbx", () => {
         }, done.fail);
     });
 
+    it("should decrypt a kdbx file protected with keyfile", (done) => {
+        Promise.all([
+            fetchArrayBuffer('base/test/data/database_with_xml_keyfile.kdbx.dat'),
+            fetchArrayBuffer('base/test/data/key_file_xml.dat')
+        ])
+        .then(([fileContents, keyFile]) => {
+            decryptDatabaseAndVerify(done, fileContents, null, keyFile);
+        }, done.fail);
+    });
+    
     it("should decrypt a kdbx file protected with password and keyfile", (done) => {
         Promise.all([
             fetchArrayBuffer('base/test/data/database_with_password_and_xml_keyfile.kdbx.dat'),
