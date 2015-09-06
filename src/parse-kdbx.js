@@ -75,8 +75,9 @@ function parseXml(xml) {
                     entry.groupName = groupNode.textContent;
             }
 
-            if (entry.groupName != "Recycle Bin")
+            if (entry.groupName != "Recycle Bin") {
                 results.push(entry);
+            }
         }
         for (let j = 0; j < entryNode.children.length; j++) {
             let childNode = entryNode.children[j];
