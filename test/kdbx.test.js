@@ -2,15 +2,15 @@ import * as Keepass from "../src/keepass.js"
 import { fetchArrayBuffer } from "./libs/test-utils.js";
 
 describe("kdbx", () => {
-    it("should decrypt a kdbx file properly", (done) => {
-        fetchArrayBuffer('base/test/data/database_simple.kdbx.dat').then((fileContents) => {
+    it("should decrypt a kdbx file protected with password", (done) => {
+        fetchArrayBuffer('base/test/data/database_with_password.kdbx.dat').then((fileContents) => {
             decryptDatabaseAndVerify(done, fileContents, "test");
         }, done.fail);
     });
-    
-    it("should decrypt a kdbx file protected with xml keyfile properly", (done) => {
+
+    it("should decrypt a kdbx file protected with password and keyfile", (done) => {
         Promise.all([
-            fetchArrayBuffer('base/test/data/database_with_xml_keyfile.kdbx.dat'),
+            fetchArrayBuffer('base/test/data/database_with_password_and_xml_keyfile.kdbx.dat'),
             fetchArrayBuffer('base/test/data/key_file_xml.dat')
         ])
         .then(([fileContents, keyFile]) => {
@@ -18,14 +18,14 @@ describe("kdbx", () => {
         }, done.fail);
     });
 
-    it("should decrypt a kdbx file without password properly", (done) => {
-        fetchArrayBuffer('base/test/data/database_without_password.kdbx.dat').then((fileContents) => {
+    it("should decrypt an unprotected kdbx file", (done) => {
+        fetchArrayBuffer('base/test/data/database_unprotected.kdbx.dat').then((fileContents) => {
             decryptDatabaseAndVerify(done, fileContents);
         }, done.fail);
     });
     
-    it("should decrypt a kdb file properly", (done) => {
-        fetchArrayBuffer('base/test/data/database_simple.kdb.dat').then((fileContents) => {
+    it("should decrypt a kdb file", (done) => {
+        fetchArrayBuffer('base/test/data/database_with_password.kdb.dat').then((fileContents) => {
             decryptDatabaseAndVerify(done, fileContents, "test");
         }, done.fail);
     });
