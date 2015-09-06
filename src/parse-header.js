@@ -31,6 +31,10 @@ export default function parseHeader(buf) {
         readKdbHeader(buf, 8, h);
     }
 
+    if (h.innerRandomStreamId != 2 && h.innerRandomStreamId != 0) {
+        throw new Error('Invalid Stream Key - Salsa20 is supported by this implementation, Arc4 and others not implemented.');
+    }
+
     //console.log(h);
     //console.log("version: " + h.version.toString(16) + ", keyRounds: " + h.keyRounds);
     return h;

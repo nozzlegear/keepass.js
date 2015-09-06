@@ -8,8 +8,6 @@ export class Database {
 
     getPasswords(buf, masterPassword, keyFile?) {
         let h = parseHeader(buf);
-        if (!h) throw new Error('Failed to read file header');
-        if (h.innerRandomStreamId != 2 && h.innerRandomStreamId != 0) throw new Error('Invalid Stream Key - Salsa20 is supported by this implementation, Arc4 and others not implemented.')
 
         let encData = new Uint8Array(buf, h.dataStart);
         //console.log("read file header ok.  encrypted data starts at byte " + h.dataStart);
