@@ -62,11 +62,12 @@ describe("kdbx", () => {
                 expect(entries.length).toBe(1);
 
                 var entry = entries[0];
-                expect(entry.keys).toEqual(['notes', 'title', 'url', 'userName', 'binaryFiles']);
+                expect(entry.keys).toEqual(['tags', 'notes', 'title', 'url', 'userName', 'binaryFiles']);
                 expect(entry.groupName).toBe("test group");
                 expect(entry.title).toBe("test_entry");
                 expect(entry.userName).toBe("test_username");
                 expect(db.decryptProtectedData(entry.protectedData.password, db.streamKey)).toBe("test_password");
+                expect(entry.tags).toBe('keepass.js test');
 
                 done();
             }, done.fail);
