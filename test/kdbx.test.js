@@ -10,8 +10,8 @@ describe("kdbx", () => {
 
     it("should decrypt a kdbx file protected with keyfile", (done) => {
         Promise.all([
-            fetchArrayBuffer('base/test/data/database_with_xml_keyfile.kdbx.dat'),
-            fetchArrayBuffer('base/test/data/key_file_xml.dat')
+            fetchArrayBuffer('base/test/data/database_with_random_keyfile.kdbx.dat'),
+            fetchArrayBuffer('base/test/data/key_file_random.dat')
         ])
         .then(([fileContents, keyFile]) => {
             decryptDatabaseAndVerify(done, fileContents, null, keyFile);
@@ -20,8 +20,8 @@ describe("kdbx", () => {
     
     it("should decrypt a kdbx file protected with password and keyfile", (done) => {
         Promise.all([
-            fetchArrayBuffer('base/test/data/database_with_password_and_xml_keyfile.kdbx.dat'),
-            fetchArrayBuffer('base/test/data/key_file_xml.dat')
+            fetchArrayBuffer('base/test/data/database_with_password_and_random_keyfile.kdbx.dat'),
+            fetchArrayBuffer('base/test/data/key_file_random.dat')
         ])
         .then(([fileContents, keyFile]) => {
             decryptDatabaseAndVerify(done, fileContents, "test", keyFile);
@@ -33,26 +33,6 @@ describe("kdbx", () => {
             decryptDatabaseAndVerify(done, fileContents);
         }, done.fail);
     });
-    
-    it("should decrypt a kdb file", (done) => {
-        fetchArrayBuffer('base/test/data/database_with_password.kdb.dat').then((fileContents) => {
-            var db = new Keepass.Database();
-
-            return db.getPasswords(fileContents, "test")
-                .then((entries) => {
-                    expect(entries.length).toBe(1);
-
-                    var entry = entries[0];
-                    expect(entry.keys).toEqual([ 'title', 'url', 'userName', 'notes' ]);
-                    expect(entry.groupName).toBe("test group");
-                    expect(entry.title).toBe("test_entry");
-                    expect(entry.userName).toBe("test_username");
-                    expect(db.decryptProtectedData(entry.protectedData.password, db.streamKey)).toBe("test_password");
-
-                    done();
-                }, done.fail);
-        }, done.fail);
-    });
 
     function decryptDatabaseAndVerify(done, fileContents, password, keyFile) {
         var db = new Keepass.Database();
@@ -62,11 +42,15 @@ describe("kdbx", () => {
                 expect(entries.length).toBe(1);
 
                 var entry = entries[0];
-                expect(entry.keys).toEqual(['tags', 'notes', 'title', 'url', 'userName', 'binaryFiles']);
+                expect(entry.keys).toEqual(['tags', 'additionalFieldWithNoValue', 'additionalFieldWithValue', 'notes', 'title', 'url', 'userName', 'binaryFiles']);
                 expect(entry.groupName).toBe("test group");
                 expect(entry.title).toBe("test_entry");
                 expect(entry.userName).toBe("test_username");
                 expect(db.decryptProtectedData(entry.protectedData.password, db.streamKey)).toBe("test_password");
+                expect(entry.additionalFieldWithNoValue, db.streamKey).toBe("");
+                expect(entry.additionalFieldWithValue, db.streamKey).toBe("some value with\nnewlines");
+                expect(db.decryptProtectedData(entry.protectedData.additionalEncryptedFieldNoValue, db.streamKey)).toBe("");
+                expect(db.decryptProtectedData(entry.protectedData.additionalEncryptedFieldWithValue, db.streamKey)).toBe("some encrypted value with\r\nnewlines");
                 expect(entry.tags).toBe('keepass.js test');
 
                 done();
