@@ -17,6 +17,12 @@ describe("kdbx", () => {
             decryptDatabaseAndVerify(done, fileContents, "test", keyFile);
         }, done.fail);
     });
+
+    it("should decrypt a kdbx file without password properly", (done) => {
+        fetchArrayBuffer('base/test/data/database_without_password.kdbx.dat').then((fileContents) => {
+            decryptDatabaseAndVerify(done, fileContents);
+        }, done.fail);
+    });
     
     it("should decrypt a kdb file properly", (done) => {
         fetchArrayBuffer('base/test/data/database_simple.kdb.dat').then((fileContents) => {
