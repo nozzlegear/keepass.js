@@ -52,12 +52,12 @@ gulp.task('watch', ['compile'], function () {
     return gulp.watch('src/**/*.js', ['compile']);
 });
 
-gulp.task('clean', function (cb) {
-    del([buildOutputDir], cb);
+gulp.task('clean', function () {
+    return del([buildOutputDir]);
 });
 
-gulp.task('clean-bower-repo', function (cb) {
-    del([buildOutputDir], { cwd: bowerRepository }, cb);
+gulp.task('clean-bower-repo', function () {
+    return del([buildOutputDir], { cwd: bowerRepository });
 });
 
 gulp.task('bump-version', function () {
