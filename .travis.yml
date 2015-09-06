@@ -20,4 +20,4 @@ cache:
     - bower_components
 
 addons:
-  firefox: "39.0"
+  firefox: "40.0"
