@@ -30,7 +30,7 @@ keepass.getPasswords(fileAsArrayBuffer, password, keyFileAsArrayBuffer)
         console.log(entry.title);
         console.log(entry.userName);
         
-        var password = keepass.decryptProtectedData(entry.protectedData.password, keepass.streamKey))
+        var password = keepass.decryptProtectedData(entry.protectedData.password))
         console.log(password);
     });
 </script>

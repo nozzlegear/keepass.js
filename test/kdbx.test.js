@@ -1,7 +1,7 @@
 import * as Keepass from "../src/keepass.js"
 import { fetchArrayBuffer } from "./libs/test-utils.js";
 
-describe("kdbx", () => {
+describe("keepass.js", () => {
     it("should decrypt a kdbx file protected with password", (done) => {
         fetchArrayBuffer('base/test/data/database_with_password.kdbx.dat').then((fileContents) => {
             decryptDatabaseAndVerify(done, fileContents, "test");
@@ -46,11 +46,11 @@ describe("kdbx", () => {
                 expect(entry.groupName).toBe("test group");
                 expect(entry.title).toBe("test_entry");
                 expect(entry.userName).toBe("test_username");
-                expect(db.decryptProtectedData(entry.protectedData.password, db.streamKey)).toBe("test_password");
-                expect(entry.additionalFieldWithNoValue, db.streamKey).toBe("");
-                expect(entry.additionalFieldWithValue, db.streamKey).toBe("some value with\nnewlines");
-                expect(db.decryptProtectedData(entry.protectedData.additionalEncryptedFieldNoValue, db.streamKey)).toBe("");
-                expect(db.decryptProtectedData(entry.protectedData.additionalEncryptedFieldWithValue, db.streamKey)).toBe("some encrypted value with\r\nnewlines");
+                expect(db.decryptProtectedData(entry.protectedData.password)).toBe("test_password");
+                expect(entry.additionalFieldWithNoValue).toBe("");
+                expect(entry.additionalFieldWithValue).toBe("some value with\nnewlines");
+                expect(db.decryptProtectedData(entry.protectedData.additionalEncryptedFieldNoValue)).toBe("");
+                expect(db.decryptProtectedData(entry.protectedData.additionalEncryptedFieldWithValue)).toBe("some encrypted value with\r\nnewlines");
                 expect(entry.tags).toBe('keepass.js test');
 
                 done();
