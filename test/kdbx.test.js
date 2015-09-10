@@ -34,6 +34,12 @@ describe("keepass.js", () => {
         }, done.fail);
     });
 
+    it("should decrypt an uncompressed kdbx file", (done) => {
+        fetchArrayBuffer('base/test/data/database_uncompressed.kdbx.dat').then((fileContents) => {
+            decryptDatabaseAndVerify(done, fileContents, "test");
+        }, done.fail);
+    });
+
     it("should throw an error when reading a non database file", (done) => {
         fetchArrayBuffer('base/test/data/key_file_random.dat').then((fileContents) => {
             var db = new Keepass.Database();
