@@ -91,9 +91,9 @@ export class Database {
         }
 
         if (h.sigKeePassType === DBSIG_KDBX || h.sigKeePassType === DBSIG_KDBX_ALPHA) {
-            kdbx.readHeader(buf, 8, h);
+            kdbx.readHeader(buf, h);
         } else {
-            kdb.readHeader(buf, 8, h);
+            kdb.readHeader(buf, h);
         }
 
         if (h.innerRandomStreamId != 2 && h.innerRandomStreamId != 0) {

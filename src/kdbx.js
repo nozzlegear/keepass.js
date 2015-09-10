@@ -1,6 +1,7 @@
 import * as util from "./util.js"
 
-export function readHeader(buf, position, h) {
+export function readHeader(buf, h) {
+    let position = 8;
     try {
         let version = new DataView(buf, position, 4);
         h.majorVersion = version.getUint16(0, util.littleEndian);
