@@ -7,6 +7,8 @@ const DBSIG_KDBX_ALPHA = 0xB54BFB66;
 const DBSIG_KDB = 0xB54BFB55;
 const DBSIG_KDB_NEW = 0xB54BFB65;
 
+const VALID_KEEPASS_TYPES = [DBSIG_KDBX, DBSIG_KDBX_ALPHA, DBSIG_KDB, DBSIG_KDB_NEW];
+
 const FLAG_SHA2 = 1;
 const FLAG_RIJNDAEL = 2;
 const FLAG_ARCFOUR = 4;
@@ -19,10 +21,9 @@ export default function parseHeader(buf) {
         sigKeePassType: sigHeader.getUint32(4, littleEndian)
     };
 
-    if (h.sigKeePass !== DBSIG_KEEPASS || (h.sigKeePassType !== DBSIG_KDBX && h.sigKeePassType !== DBSIG_KDBX_ALPHA && h.sigKeePassType !== DBSIG_KDB && h.sigKeePassType !== DBSIG_KDB_NEW)) {
-        //fail
-        console.log("Signature fail.  sig 1:" + h.sigKeePass.toString(16) + ", sig2:" + h.sigKeePassType.toString(16));
-        throw new Error('This is not a valid KeePass file - file signature is not correct.');
+    if (h.sigKeePass !== DBSIG_KEEPASS || VALID_KEEPASS_TYPES.indexOf(h.sigKeePassType) < 0) {
+        throw new Error('Invalid KeePass file - file signature is not correct. ('
+            + h.sigKeePass.toString(16) + ":" + h.sigKeePassType.toString(16) + ')');
     }
 
     if (h.sigKeePassType === DBSIG_KDBX || h.sigKeePassType === DBSIG_KDBX_ALPHA) {
@@ -35,8 +36,6 @@ export default function parseHeader(buf) {
         throw new Error('Invalid Stream Key - Salsa20 is supported by this implementation, Arc4 and others not implemented.');
     }
 
-    //console.log(h);
-    //console.log("version: " + h.version.toString(16) + ", keyRounds: " + h.keyRounds);
     return h;
 }
     

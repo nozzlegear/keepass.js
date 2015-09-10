@@ -7,26 +7,23 @@ import aesEcbEncrypt from "./aes-ecb-encrypt.js";
 export class Database {
 
     getPasswords(buf, masterPassword, keyFile?) {
-        let h = parseHeader(buf);
+        try {
+            var h = parseHeader(buf);
+        }
+        catch (e) {
+            return Promise.reject(e.message);
+        }
 
         let encData = new Uint8Array(buf, h.dataStart);
-        //console.log("read file header ok.  encrypted data starts at byte " + h.dataStart);
-        let SHA = {
-            name: "SHA-256"
-        };
-        let AES = {
-            name: "AES-CBC",
-            iv: h.iv
-        };
+        let SHA = { name: "SHA-256" };
+        let AES = { name: "AES-CBC", iv: h.iv };
 
         return masterKey(h, masterPassword, keyFile).then((masterKey) => {
             //transform master key thousands of times
             return aesEcbEncrypt(h.transformSeed, masterKey, h.keyRounds);
         }).then(function(finalVal) {
             //do a final SHA-256 on the transformed key
-            return window.crypto.subtle.digest({
-                name: "SHA-256"
-            }, finalVal);
+            return window.crypto.subtle.digest(SHA, finalVal);
         }).then(function(encMasterKey) {
             let finalKeySource = new Uint8Array(h.masterSeed.byteLength + 32);
             finalKeySource.set(h.masterSeed);

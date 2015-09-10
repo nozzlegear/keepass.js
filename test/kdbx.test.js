@@ -34,6 +34,17 @@ describe("keepass.js", () => {
         }, done.fail);
     });
 
+    it("should throw an error when reading a non database file", (done) => {
+        fetchArrayBuffer('base/test/data/key_file_random.dat').then((fileContents) => {
+            var db = new Keepass.Database();
+
+            db.getPasswords(fileContents, "test").catch((msg) => {
+                expect(msg).toBe('Invalid KeePass file - file signature is not correct. (ef5a43a6:a876235a)');
+                done();
+            });
+        }, done.fail);
+    });
+
     function decryptDatabaseAndVerify(done, fileContents, password, keyFile) {
         var db = new Keepass.Database();
 

@@ -7,7 +7,6 @@ export default function parseKdbx(decryptedData, streamKey, h) {
     for (let i = 0; i < 32; i++) {
         if (storedStartBytes[i] != h.streamStartBytes[i]) {
             throw new Error('Decryption succeeded but payload corrupt');
-            return;
         }
     }
 
