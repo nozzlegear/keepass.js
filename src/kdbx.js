@@ -1,6 +1,25 @@
 import * as util from "./util.js"
 
-export default function parseKdbx(decryptedData, streamKey, h) {
+export function readHeader(buf, position, h) {
+    try {
+        let version = new DataView(buf, position, 4);
+        h.majorVersion = version.getUint16(0, util.littleEndian);
+        h.minorVersion = version.getUint16(2, util.littleEndian);
+        position += 4;
+
+        let done = false;
+        while (!done) {
+            [done, position] = readHeaderField(buf, position, h);
+        }
+
+        h.kdbx = true;
+        h.dataStart = position;
+    } catch (err) {
+        throw new Error('Failed to parse KDBX file header - file is corrupt or format not supported');
+    }
+}
+
+export function parse(decryptedData, streamKey, h) {
     //at this point we probably have successfully decrypted data, just need to double-check:
 
     let storedStartBytes = new Uint8Array(decryptedData, 0, 32);
@@ -44,6 +63,55 @@ export default function parseKdbx(decryptedData, streamKey, h) {
     let decoder = new TextDecoder();
     let xml = decoder.decode(allBlocks);
     return parseXml(xml);
+}
+
+function readHeaderField(buf, position, h) {
+    let done = false;
+    let descriptor = new DataView(buf, position, 3);
+    let fieldId = descriptor.getUint8(0);
+    let len = descriptor.getUint16(1, util.littleEndian);
+
+    let dv = new DataView(buf, position + 3, len);
+    //console.log("fieldid " + fieldId + " found at " + position);
+    position += 3;
+    switch (fieldId) {
+        case 0: //end of header
+            done = true;
+            break;
+        case 2: //cipherid, 16 bytes
+            h.cipher = new Uint8Array(buf, position, len);
+            break;
+        case 3: //compression flags, 4 bytes
+            h.compressionFlags = dv.getUint32(0, util.littleEndian);
+            break;
+        case 4: //master seed
+            h.masterSeed = new Uint8Array(buf, position, len);
+            break;
+        case 5: //transform seed
+            h.transformSeed = new Uint8Array(buf, position, len);
+            break;
+        case 6: //transform rounds, 8 bytes
+            h.keyRounds = dv.getUint32(0, util.littleEndian);
+            h.keyRounds2 = dv.getUint32(4, util.littleEndian);
+            break;
+        case 7: //iv
+            h.iv = new Uint8Array(buf, position, len);
+            break;
+        case 8: //protected stream key
+            h.protectedStreamKey = new Uint8Array(buf, position, len);
+            break;
+        case 9:
+            h.streamStartBytes = new Uint8Array(buf, position, len);
+            break;
+        case 10:
+            h.innerRandomStreamId = dv.getUint32(0, util.littleEndian);
+            break;
+        default:
+            break;
+    }
+
+    position += len;
+    return [done, position];
 }
 
 /**

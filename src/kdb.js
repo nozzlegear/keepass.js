@@ -1,6 +1,46 @@
 import { littleEndian, convertArrayToUUID } from "./util.js"
 
-export default function parse(buf, streamKey, h) {
+const AES_CIPHER_UUID = new Uint8Array([0x31, 0xc1, 0xf2, 0xe6, 0xbf, 0x71, 0x43, 0x50, 0xbe, 0x58, 0x05, 0x21, 0x6a, 0xfc, 0x5a, 0xff]);
+
+const FLAG_SHA2 = 1;
+const FLAG_RIJNDAEL = 2;
+const FLAG_ARCFOUR = 4;
+const FLAG_TWOFISH = 8;
+
+export function readHeader(buf, position, h) {
+    let dv = new DataView(buf, position, 116);
+    let flags = dv.getUint32(0, littleEndian);
+    if ((flags & FLAG_RIJNDAEL) !== FLAG_RIJNDAEL) {
+        throw new Error('We only support AES (aka Rijndael) encryption on KeePass KDB files.  This file is using something else.');
+    }
+
+    try {
+        h.cipher = AES_CIPHER_UUID;
+        h.majorVersion = dv.getUint16(4, littleEndian);
+        h.minorVersion = dv.getUint16(6, littleEndian);
+        h.masterSeed = new Uint8Array(buf, position + 8, 16);
+        h.iv = new Uint8Array(buf, position + 24, 16);
+        h.numberOfGroups = dv.getUint32(40, littleEndian);
+        h.numberOfEntries = dv.getUint32(44, littleEndian);
+        h.contentsHash = new Uint8Array(buf, position + 48, 32);
+        h.transformSeed = new Uint8Array(buf, position + 80, 32);
+        h.keyRounds = dv.getUint32(112, littleEndian);
+
+        //constants for KDB:
+        h.keyRounds2 = 0;
+        h.compressionFlags = 0;
+        h.protectedStreamKey = window.crypto.getRandomValues(new Uint8Array(16));  //KDB does not have this, but we will create in order to protect the passwords
+        h.innerRandomStreamId = 0;
+        h.streamStartBytes = null;
+        h.kdb = true;
+
+        h.dataStart = position + 116;  //=124 - the size of the KDB header
+    } catch (err) {
+        throw new Error('Failed to parse KDB file header - file is corrupt or format not supported');
+    }
+}
+
+export function parse(buf, streamKey, h) {
     
     let iv = [0xE8, 0x30, 0x09, 0x4B, 0x97, 0x20, 0x5D, 0x2A];
     let salsa = new Salsa20(new Uint8Array(streamKey), iv);
