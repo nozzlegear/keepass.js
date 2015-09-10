@@ -44,17 +44,24 @@ module.exports = function(config) {
       '**/*-min.js'
     ],
 
+    // see http://www.aptoma.com/es6-code-coverage-babel-jspm-karma-jasmine-istanbul/
+    // for all the funky configuration needed to make testing es6 code work well
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'src/**/*.js': ['babel', 'coverage'],
+      'src/**/*.js': ['babel', 'sourcemap', 'coverage'],
       'test/**/*.js': ['babel']
     },
 
     babelPreprocessor: {
       options: {
-        auxiliaryCommentBefore: 'istanbul ignore next'
+        auxiliaryCommentBefore: 'istanbul ignore next',
+        sourceMap: 'inline',
+        blacklist: ['useStrict']
+      },
+      sourceFileName: function(file) {
+        return file.originalPath;
       }
     },
 
@@ -64,10 +71,14 @@ module.exports = function(config) {
     reporters: ['progress', 'coverage'],
     
     coverageReporter: {
+      instrumenters: {isparta: require('isparta')},
+      instrumenter: {
+          'src/*.js': 'isparta'
+      },
       reporters: [
-        {type: "lcov", dir: "coverage"},
-        {type: "text"},
-        {type: "text-summary"}
+        {type: "lcov"},
+        {type: "text-summary"},
+        {type: "html", dir: "coverage/"}
       ]
     },
 
