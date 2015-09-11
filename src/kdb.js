@@ -66,7 +66,7 @@ export function parse(buf, streamKey, h) {
     let entries = [];
     for (let i = 0; i < h.numberOfEntries; i++) {
         let fieldType = 0, fieldSize = 0;
-        let currentEntry: any = { keys: [] };
+        let currentEntry = { keys: [] };
         let preventInfinite = 100;
         while (fieldType != 0xFFFF && preventInfinite > 0) {
             fieldType = dv.getUint16(pos, littleEndian);
