@@ -38,15 +38,15 @@ export function readHeader(buf, h) {
 }
 
 export function parse(buf, streamKey, h) {
-    
-    let iv = [0xE8, 0x30, 0x09, 0x4B, 0x97, 0x20, 0x5D, 0x2A];
-    let salsa = new Salsa20(new Uint8Array(streamKey), iv);
-    let salsaPosition = 0;
+    let [groups, pos] = readGroups(buf, h.numberOfGroups);
+    return readEntries(buf, groups, pos, h.numberOfEntries, streamKey);
+}
 
+function readGroups(buf, numberOfGroups) {
     let pos = 0;
     let dv = new DataView(buf);
     let groups = [];
-    for (let i = 0; i < h.numberOfGroups; i++) {
+    for (let i = 0; i < numberOfGroups; i++) {
         let fieldType = 0, fieldSize = 0;
         let currentGroup = {};
         let preventInfinite = 100;
@@ -62,9 +62,17 @@ export function parse(buf, streamKey, h) {
 
         groups.push(currentGroup);
     }
+    return [groups, pos];
+}
 
+function readEntries(buf, groups, pos, numberOfEntries, streamKey) {
+    let iv = [0xE8, 0x30, 0x09, 0x4B, 0x97, 0x20, 0x5D, 0x2A];
+    let salsa = new Salsa20(new Uint8Array(streamKey), iv);
+    let salsaPosition = 0;
+
+    let dv = new DataView(buf);
     let entries = [];
-    for (let i = 0; i < h.numberOfEntries; i++) {
+    for (let i = 0; i < numberOfEntries; i++) {
         let fieldType = 0, fieldSize = 0;
         let currentEntry = { keys: [] };
         let preventInfinite = 100;
@@ -107,7 +115,6 @@ export function parse(buf, streamKey, h) {
             entries.push(currentEntry);
         }
     }
-
     return entries;
 }
 
