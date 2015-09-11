@@ -40,7 +40,7 @@ describe("keepass.js", () => {
         }, done.fail);
     });
 
-    it("should throw an error when reading a non database file", (done) => {
+    it("should reject the promise when reading a non database file", (done) => {
         var db = new Keepass.Database();
         fetchArrayBuffer('base/test/data/key_file_random.dat').then((fileContents) => {
             return db.getPasswords(fileContents, "test");

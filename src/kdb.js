@@ -1,4 +1,4 @@
-import { littleEndian, convertArrayToUUID } from "./util.js"
+import { littleEndian, convertArrayToUUID } from "./util.js"
 
 const AES_CIPHER_UUID = new Uint8Array([0x31, 0xc1, 0xf2, 0xe6, 0xbf, 0x71, 0x43, 0x50, 0xbe, 0x58, 0x05, 0x21, 0x6a, 0xfc, 0x5a, 0xff]);
 
@@ -101,12 +101,11 @@ export function parse(buf, streamKey, h) {
             salsaPosition += passwordBytes.byteLength;
         }
 
-        if (!(currentEntry.title == 'Meta-Info' && currentEntry.userName == 'SYSTEM')
-            && (currentEntry.groupName != 'Backup')
-            && (currentEntry.groupName != 'Search Results'))
+        if (!(currentEntry.title == 'Meta-Info' && currentEntry.userName == 'SYSTEM') &&
+            (currentEntry.groupName != 'Backup') && (currentEntry.groupName != 'Search Results')) {
 
             entries.push(currentEntry);
-        //}
+        }
     }
 
     return entries;
