@@ -137,8 +137,8 @@ function parseXml(xml) {
 
         //exclude histories and recycle bin:
         if (entryNode.parentNode.nodeName != "History") {
-            for (let m = 0; m < entryNode.parentNode.children.length; m++) {
-                let groupNode = entryNode.parentNode.children[m];
+            for (let m = 0; m < entryNode.parentNode.childNodes.length; m++) {
+                let groupNode = entryNode.parentNode.childNodes[m];
                 if (groupNode.nodeName == 'Name')
                     entry.groupName = groupNode.textContent;
             }
@@ -147,8 +147,8 @@ function parseXml(xml) {
                 results.push(entry);
             }
         }
-        for (let j = 0; j < entryNode.children.length; j++) {
-            let childNode = entryNode.children[j];
+        for (let j = 0; j < entryNode.childNodes.length; j++) {
+            let childNode = entryNode.childNodes[j];
 
             if (childNode.nodeName == "UUID") {
                 entry.id = util.convertArrayToUUID(util.str2ab(atob(childNode.textContent)));
